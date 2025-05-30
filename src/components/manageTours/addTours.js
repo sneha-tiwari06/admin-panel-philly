@@ -55,8 +55,10 @@ const AddTours = () => {
   };
 
   const isPrivateTour =
-    selectedCategory?.category === "4 Seater Private Tours" ||
-    selectedCategory?.category === "7 Seater Private Tours";
+    selectedCategory?.category === "4 Seater Private Tours (2hr)" ||
+    selectedCategory?.category === "7 Seater Private Tours (2hr)" ||
+    selectedCategory?.category === "4 Seater Private Tours (1hr)" ||
+    selectedCategory?.category === "7 Seater Private Tours (1hr)";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
