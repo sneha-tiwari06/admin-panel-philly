@@ -131,6 +131,10 @@ function ManageBookings() {
             <td>${payment.sub_total}</td>
           </tr>
           <tr>
+            <th>Discount</th>
+            <td>{selectedBooking.discount}</td>
+          </tr>
+          <tr>
             <th>Payment Method</th>
             <td>{payment.payment_method}</td>
           </tr>

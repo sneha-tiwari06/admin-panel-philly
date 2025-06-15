@@ -6,7 +6,7 @@ import axiosInstance from "../utils/axiosInstnace";
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -20,91 +20,112 @@ function Login() {
       const data = response.data;
       if (response.status === 200) {
         localStorage.setItem("token", data.token);
-        navigate("/dashboard");
+        localStorage.setItem("role", data.role);
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("role", data.role);
+        if (data.role === "subadmin") {
+          navigate("/dashboard-subadmin");
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (error) {
       if (error.response && error.response.data.error) {
-        setErrorMessage(error.response.data.error); // Set error message based on backend response
+        setErrorMessage(error.response.data.error);
       } else {
         setErrorMessage("Wrong Username or Password");
       }
     }
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await axiosInstance.post("/users/register", {
-        username,
-        password,
-      });
-      if (response.status === 201) {
-        alert("Registration successful!");
-        navigate("/");
-      } else {
-        alert(response.data.message);
-      }
-    } catch (error) {
-      console.error("Error registering:", error);
-    }
-  };
-
   return (
-    <div className="body2">
-      <div className="main2">
-        <input className="input2" type="checkbox" id="chk" aria-hidden="true" />
+    <div className="wrapper d-flex align-items-center justify-content-center p-4 p-md-5">
+      <img
+        src="../bg.jpg"
+        className="position-absolute end-0 top-50 translate-middle-y abstract-bg"
+        alt=""
+        style={{ width: "256px" }}
+      />
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-12 col-xl-10">
+            <div className="card border-0 rounded-0">
+              <div className="row g-0">
+                <div className="col-12 col-md-5 bg-purple-gradient position-relative">
+                  <img
+                    src="../loginPage.jpg"
+                    alt="Blurred Background"
+                    className="left-blurred-bg"
+                  />
+                  <img
+                    src="../loginPage.jpg"
+                    className="w-100 h-100 object-fit-cover left-image-foreground"
+                    alt="Illustration"
+                  />
 
-        <div className="signup">
-          <form onSubmit={handleLogin}>
-            <label className="label2" htmlFor="chk" aria-hidden="true">
-              Philly City Tours
-            </label>
-            {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}{" "}
-            {/* Display error message */}
-            <input
-              className="input2"
-              type="text"
-              placeholder="Username or Email"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <input
-              className="input2"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button  className="button2 button-save log-out-btn" type="submit">Login</button>
-          </form>
-        </div>
+                  {/* <div className="position-absolute top-0 start-0 p-4 left-image-foreground">
+                    <h2 className="logo text-white fs-3 mb-0">logo</h2>
+                  </div> */}
+                </div>
 
-        <div className="login">
-          <form onSubmit={handleRegister}>
-            <label className="label2" htmlFor="chk" aria-hidden="true">
-              Sign up
-            </label>
-            <input
-              className="input2"
-              type="text"
-              placeholder="Enter Username"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <input
-              className="input2"
-              type="password"
-              placeholder="Enter Password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button className="button2">Sign up</button>
-          </form>
+                <div className="col-12 col-md-7 p-4 p-sm-5 position-relative">
+                  <div className="mb-4 mt-2">
+                    <h1 className="fs-3 fw-bold text-dark mb-2">
+                      Philly City Tours
+                    </h1>
+                    <div
+                      className="bg-primary"
+                      style={{ width: "48px", height: "4px" }}
+                    ></div>
+                  </div>
+                  <form onSubmit={handleLogin}>
+                    <div className="row g-3">
+                      <div className="col-12 col-md-6">
+                        <label for="username" className="form-label mb-1">
+                          User Name
+                        </label>
+                        <input
+                          type="text"
+                          id="username"
+                          className="form-control"
+                          placeholder="Enter user name"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="col-12 col-md-6">
+                        <label for="password" className="form-label mb-1">
+                          Password
+                        </label>
+                        <input
+                          type="password"
+                          id="password"
+                          className="form-control"
+                          placeholder="Enter Password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="col-12">
+                        <button
+                          type="submit"
+                          className="btn btn-primary w-100 btn-next d-flex align-items-center justify-content-between"
+                        >
+                          <span>Submit</span>
+                          <i className="ri-arrow-right-line"></i>
+                        </button>
+                      </div>
+                      {errorMessage && (
+                        <p style={{ color: "red" }}>{errorMessage}</p>
+                      )}{" "}
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

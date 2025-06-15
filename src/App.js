@@ -32,6 +32,7 @@ import ManageBookings from "./components/BookingTours.js/manageBookings";
 import Coupons from "./components/coupon/coupon";
 import Offers from "./components/coupon/listCoupon";
 import ManageContactQuery from "./components/contactQueries/contactQueries";
+import DashboardSubAdmin from "./components/dashboard-subadmin";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard-subadmin" element={<DashboardSubAdmin />} />
             <Route path="/manage-category" element={<ManageCategory />} />
             <Route path="/add-category" element={<AddCategory />} />            
             <Route path="/edit-category/:id" element={<AddCategory />} />
