@@ -11,6 +11,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccessTime from "@mui/icons-material/AccessTime";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 function Sidebar({ children }) {
   const [isOpen, setIsOpen] = useState(true);
   // Track which submenu is open (if any)
@@ -86,6 +87,8 @@ function Sidebar({ children }) {
       name: "Manage Contact Query",
       icon: <FormatQuoteIcon />,
     },
+    { path: "/manage-users", name: "Manage Users", icon: <PersonOutlineIcon /> },
+
   ];
 
   // Get role from sessionStorage or localStorage

@@ -33,21 +33,25 @@ import Coupons from "./components/coupon/coupon";
 import Offers from "./components/coupon/listCoupon";
 import ManageContactQuery from "./components/contactQueries/contactQueries";
 import DashboardSubAdmin from "./components/dashboard-subadmin";
+import ManageUsers from "./components/Users/manage-users";
+import AddUsers from "./components/Users/add-users";
 
 function App() {
   return (
     <Router>
       <div className="App">
-       
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route element={<ProtectedRoute />}>
-            
+            <Route
+              path="/register"
+              element={<Register />}
+            />
+
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard-subadmin" element={<DashboardSubAdmin />} />
             <Route path="/manage-category" element={<ManageCategory />} />
-            <Route path="/add-category" element={<AddCategory />} />            
+            <Route path="/add-category" element={<AddCategory />} />
             <Route path="/edit-category/:id" element={<AddCategory />} />
             <Route path="/manage-cars" element={<ManageCars />} />
             <Route path="/add-cars" element={<AddCars />} />
@@ -57,8 +61,14 @@ function App() {
             <Route path="/edit-tour/:id" element={<AddTours />} />
             <Route path="/manage-gallery/:id" element={<ManageGallery />} />
             <Route path="/add-gallery/tour/:tourId" element={<AddGallery />} />
-            <Route path="/edit-gallery/:tourId/:galleryId" element={<AddGallery />} />
-            <Route path="/manage-testimonials" element={<ManageTestimonials />} />
+            <Route
+              path="/edit-gallery/:tourId/:galleryId"
+              element={<AddGallery />}
+            />
+            <Route
+              path="/manage-testimonials"
+              element={<ManageTestimonials />}
+            />
             <Route path="/add-testimonials" element={<Testimonials />} />
             <Route path="/edit-testimonials/:id" element={<Testimonials />} />
             <Route path="/manage-faqs/" element={<ManageFAQ />} />
@@ -69,23 +79,34 @@ function App() {
             <Route path="/edit-blog/:slug" element={<AddBlog />} />
             <Route path="/manage-events" element={<ManageEvents />} />
             <Route path="/add-events" element={<AddEvent />} />
-            <Route path="/edit-event/:slug" element={<AddEvent />} /> 
+            <Route path="/edit-event/:slug" element={<AddEvent />} />
             <Route path="/manage-block-dates" element={<ManageBlockDate />} />
             <Route path="/add-block-date" element={<BlockDate />} />
-            <Route path="/edit-block-date/:id" element={<BlockDate />} />     
+            <Route path="/edit-block-date/:id" element={<BlockDate />} />
             <Route path="/manage-block-times" element={<ManageBlockTime />} />
             <Route path="/add-block-time" element={<BlockTime />} />
-            <Route path="/edit-block-time/:id" element={<BlockTime />} />  
+            <Route path="/edit-block-time/:id" element={<BlockTime />} />
             <Route path="/manage-booking" element={<BookingForm />} />
             <Route path="/manage-bookings" element={<ManageBookings />} />
             <Route path="/add-offers" element={<Coupons />} />
-            <Route path="/edit-coupon/:id" element={<Coupons />} /> 
+            <Route path="/edit-coupon/:id" element={<Coupons />} />
             <Route path="/offers" element={<Offers />} />
-            <Route path="/manage-contact-queries" element={<ManageContactQuery />} />
+            <Route
+              path="/manage-contact-queries"
+              element={<ManageContactQuery />}
+            />
+            <Route
+              path="/manage-users"
+              element={<ManageUsers />}
+            />
+            <Route
+              path="/add-users"
+              element={<AddUsers />}
+            />
+            <Route path="/edit-user/:id" element={<AddUsers />} />
 
           </Route>
         </Routes>
-       
       </div>
     </Router>
   );
