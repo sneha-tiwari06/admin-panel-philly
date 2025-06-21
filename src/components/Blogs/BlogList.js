@@ -28,7 +28,7 @@ function ManageBlogs() {
     );
     if (confirmed) {
       try {
-        await axiosInstance.get(`/blogs/${id}`);
+        await axiosInstance.get(`/blogs/delete/${id}`);
         setBlogs(blogs.filter((blog) => blog._id !== id));
       } catch (err) {
         alert("Error deleting blog: " + err.message);

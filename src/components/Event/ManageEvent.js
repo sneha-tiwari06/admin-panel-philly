@@ -28,7 +28,7 @@ function ManageEvents() {
     );
     if (confirmed) {
       try {
-        await axiosInstance.get(`/events/${id}`);
+        await axiosInstance.get(`/events/delete/${id}`);
         setEvents(events.filter((blog) => blog._id !== id));
       } catch (err) {
         alert("Error deleting blog: " + err.message);
