@@ -32,7 +32,7 @@ function ManageGallery() {
     );
     if (confirmed) {
       try {
-        await axiosInstance.delete(`/gallery/${id}`);
+        await axiosInstance.get(`/gallery/${id}`);
         setGallery(gallery.filter((item) => item._id !== id));
       } catch (err) {
         alert("Error deleting gallery image: " + err.message);
@@ -72,7 +72,7 @@ function ManageGallery() {
         Header: "Action",
         Cell: ({ row }) => (
           <div className="action-btn2">
-           <Link to={`/edit-gallery/${tourId}/${row.original._id}`}>
+            <Link to={`/edit-gallery/${tourId}/${row.original._id}`}>
               <button type="button" className="w-auto btn btn-warning">
                 Edit
               </button>

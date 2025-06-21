@@ -28,7 +28,7 @@ function ManageBlockDate() {
     );
     if (confirmed) {
       try {
-        await axiosInstance.delete(`/block-date/${id}`);
+        await axiosInstance.get(`/block-date/${id}`);
         setBlockDate((prev) => prev.filter((date) => date._id !== id));
       } catch (err) {
         alert("Error deleting block date: " + err.message);

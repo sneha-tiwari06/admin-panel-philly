@@ -20,13 +20,15 @@ function ManageTours() {
       }
     };
     fetchTours();
-  }, []); 
+  }, []);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this Tour?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this Tour?"
+    );
     if (confirmed) {
       try {
-        await axiosInstance.delete(`/tours/${id}`);
+        await axiosInstance.get(`/tours/${id}`);
         setTours(tours.filter((tour) => tour._id !== id));
       } catch (err) {
         alert("Error deleting tour: " + err.message);
@@ -44,9 +46,9 @@ function ManageTours() {
       {
         Header: "Category",
         accessor: "selectedCategory.category", // optional but not required here
-        Cell: ({ row }) => row.original.selectedCategory?.category || "N/A"
+        Cell: ({ row }) => row.original.selectedCategory?.category || "N/A",
       },
-      
+
       {
         Header: "Category URL",
         accessor: "slugURL",
@@ -56,10 +58,14 @@ function ManageTours() {
         Cell: ({ row }) => (
           <div className="action-btn2">
             <Link to={`/edit-tour/${row.original._id}`}>
-              <button type="button" className="w-auto btn btn-warning">Edit</button>
+              <button type="button" className="w-auto btn btn-warning">
+                Edit
+              </button>
             </Link>
             <Link to={`/manage-gallery/${row.original._id}`}>
-              <button type="button" className="w-auto btn btn-warning">Gallery</button>
+              <button type="button" className="w-auto btn btn-warning">
+                Gallery
+              </button>
             </Link>
             <button
               type="button"

@@ -20,13 +20,15 @@ function Offers() {
       }
     };
     fetchCoupons();
-  }, []); 
+  }, []);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this category?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this category?"
+    );
     if (confirmed) {
       try {
-        await axiosInstance.delete(`/coupons/${id}`);
+        await axiosInstance.get(`/coupons/${id}`);
         setCoupons(coupons.filter((coupon) => coupon._id !== id));
       } catch (err) {
         alert("Error deleting Offer: " + err.message);
@@ -57,13 +59,15 @@ function Offers() {
         Header: "Total Discount",
         accessor: "totalDiscount",
       },
-      
+
       {
         Header: "Action",
         Cell: ({ row }) => (
           <div className="action-btn2">
             <Link to={`/edit-coupon/${row.original._id}`}>
-              <button type="button" className="w-auto btn btn-warning">Edit</button>
+              <button type="button" className="w-auto btn btn-warning">
+                Edit
+              </button>
             </Link>
             <button
               type="button"

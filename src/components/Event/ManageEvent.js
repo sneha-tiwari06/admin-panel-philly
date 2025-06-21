@@ -20,13 +20,15 @@ function ManageEvents() {
       }
     };
     fetchEvents();
-  }, []); 
+  }, []);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this category?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this category?"
+    );
     if (confirmed) {
       try {
-        await axiosInstance.delete(`/events/${id}`);
+        await axiosInstance.get(`/events/${id}`);
         setEvents(events.filter((blog) => blog._id !== id));
       } catch (err) {
         alert("Error deleting blog: " + err.message);
@@ -54,7 +56,9 @@ function ManageEvents() {
         Cell: ({ row }) => (
           <div className="action-btn2">
             <Link to={`/edit-event/${row.original.eventURL}`}>
-              <button type="button" className="w-auto btn btn-warning">Edit</button>
+              <button type="button" className="w-auto btn btn-warning">
+                Edit
+              </button>
             </Link>
             <button
               type="button"

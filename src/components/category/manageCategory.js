@@ -20,13 +20,15 @@ function ManageCategory() {
       }
     };
     fetchCategories();
-  }, []); 
+  }, []);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this category?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this category?"
+    );
     if (confirmed) {
       try {
-        await axiosInstance.delete(`/categories/${id}`);
+        await axiosInstance.get(`/categories/${id}`);
         setCategories(categories.filter((category) => category._id !== id));
       } catch (err) {
         alert("Error deleting category: " + err.message);
@@ -54,7 +56,9 @@ function ManageCategory() {
         Cell: ({ row }) => (
           <div className="action-btn2">
             <Link to={`/edit-category/${row.original._id}`}>
-              <button type="button" className="w-auto btn btn-warning">Edit</button>
+              <button type="button" className="w-auto btn btn-warning">
+                Edit
+              </button>
             </Link>
             <button
               type="button"

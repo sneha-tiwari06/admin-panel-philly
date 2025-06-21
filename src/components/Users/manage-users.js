@@ -23,10 +23,12 @@ function ManageUsers() {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this User?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this User?"
+    );
     if (confirmed) {
       try {
-        await axiosInstance.delete(`/users/delete/${id}`);
+        await axiosInstance.get(`/users/delete/${id}`);
         setUsers(users.filter((user) => user._id !== id));
       } catch (err) {
         alert("Error deleting user: " + err.message);
@@ -54,8 +56,10 @@ function ManageUsers() {
         Cell: ({ row }) => (
           <div className="action-btn2">
             <Link to={`/edit-user/${row.original._id}`}>
-              <button type="button" className="w-auto btn btn-warning">Edit</button>
-            </Link>           
+              <button type="button" className="w-auto btn btn-warning">
+                Edit
+              </button>
+            </Link>
             <button
               type="button"
               className="w-auto btn btn-danger"

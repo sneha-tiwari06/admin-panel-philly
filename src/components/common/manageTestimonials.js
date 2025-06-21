@@ -20,14 +20,18 @@ function ManageTestimonials() {
       }
     };
     fetchTestimonials();
-  }, []); 
+  }, []);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this Testimonials?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this Testimonials?"
+    );
     if (confirmed) {
       try {
-        await axiosInstance.delete(`/testimonials/${id}`);
-        setTestimonials(testimonial.filter((testimonial) => testimonial._id !== id));
+        await axiosInstance.get(`/testimonials/${id}`);
+        setTestimonials(
+          testimonial.filter((testimonial) => testimonial._id !== id)
+        );
       } catch (err) {
         alert("Error deleting tour: " + err.message);
       }
@@ -44,9 +48,9 @@ function ManageTestimonials() {
       {
         Header: "Show In",
         accessor: "category.slugURL", // optional but not required here
-        Cell: ({ row }) => row.original.category?.slugURL || "N/A"
+        Cell: ({ row }) => row.original.category?.slugURL || "N/A",
       },
-      
+
       {
         Header: "Title",
         accessor: "title",
@@ -56,7 +60,9 @@ function ManageTestimonials() {
         Cell: ({ row }) => (
           <div className="action-btn2">
             <Link to={`/edit-testimonials/${row.original._id}`}>
-              <button type="button" className="w-auto btn btn-warning">Edit</button>
+              <button type="button" className="w-auto btn btn-warning">
+                Edit
+              </button>
             </Link>
             <button
               type="button"

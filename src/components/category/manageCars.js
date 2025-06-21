@@ -23,10 +23,12 @@ function ManageCategory() {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this category?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this category?"
+    );
     if (confirmed) {
       try {
-        await axiosInstance.delete(`/cars/${id}`);
+        await axiosInstance.get(`/cars/${id}`);
         setCars(cars.filter((car) => car._id !== id));
       } catch (err) {
         alert("Error deleting category: " + err.message);

@@ -20,13 +20,15 @@ function ManageFAQ() {
       }
     };
     fetchFaqs();
-  }, []); 
+  }, []);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this FAQ?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this FAQ?"
+    );
     if (confirmed) {
       try {
-        await axiosInstance.delete(`/faqs/${id}`);
+        await axiosInstance.get(`/faqs/${id}`);
         setFaqs(faqs.filter((faq) => faq._id !== id));
       } catch (err) {
         alert("Error deleting tour: " + err.message);
@@ -43,10 +45,10 @@ function ManageFAQ() {
       },
       {
         Header: "Category",
-        accessor: "category.slugURL", 
-        Cell: ({ row }) => row.original.category?.slugURL || "N/A"
+        accessor: "category.slugURL",
+        Cell: ({ row }) => row.original.category?.slugURL || "N/A",
       },
-      
+
       {
         Header: "Question",
         accessor: "question",
@@ -54,15 +56,17 @@ function ManageFAQ() {
           const words = value.split(" ");
           const sliced = words.slice(0, 15).join(" ");
           return words.length > 15 ? `${sliced}...` : sliced;
-        }
+        },
       },
-      
+
       {
         Header: "Action",
         Cell: ({ row }) => (
           <div className="action-btn2">
             <Link to={`/edit-faqs/${row.original._id}`}>
-              <button type="button" className="w-auto btn btn-warning">Edit</button>
+              <button type="button" className="w-auto btn btn-warning">
+                Edit
+              </button>
             </Link>
             <button
               type="button"
