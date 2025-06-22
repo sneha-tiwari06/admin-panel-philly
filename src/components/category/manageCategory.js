@@ -28,7 +28,7 @@ function ManageCategory() {
     );
     if (confirmed) {
       try {
-        await axiosInstance.get(`/categories/${id}`);
+        await axiosInstance.get(`/categories/delete/${id}`);
         setCategories(categories.filter((category) => category._id !== id));
       } catch (err) {
         alert("Error deleting category: " + err.message);

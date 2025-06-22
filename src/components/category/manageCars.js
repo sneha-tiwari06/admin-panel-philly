@@ -28,7 +28,7 @@ function ManageCategory() {
     );
     if (confirmed) {
       try {
-        await axiosInstance.get(`/cars/${id}`);
+        await axiosInstance.get(`/cars/delete/${id}`);
         setCars(cars.filter((car) => car._id !== id));
       } catch (err) {
         alert("Error deleting category: " + err.message);

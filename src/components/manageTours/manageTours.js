@@ -28,7 +28,7 @@ function ManageTours() {
     );
     if (confirmed) {
       try {
-        await axiosInstance.get(`/tours/${id}`);
+        await axiosInstance.get(`/tours/delete/${id}`);
         setTours(tours.filter((tour) => tour._id !== id));
       } catch (err) {
         alert("Error deleting tour: " + err.message);

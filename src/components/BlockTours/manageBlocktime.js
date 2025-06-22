@@ -28,7 +28,7 @@ function ManageBlockTime() {
     );
     if (confirmed) {
       try {
-        await axiosInstance.get(`/block-time/${id}`);
+        await axiosInstance.get(`/block-time/delete/${id}`);
         setBlockTime((prev) => prev.filter((date) => date._id !== id));
       } catch (err) {
         alert("Error deleting block time: " + err.message);

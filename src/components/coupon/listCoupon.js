@@ -28,7 +28,7 @@ function Offers() {
     );
     if (confirmed) {
       try {
-        await axiosInstance.get(`/coupons/${id}`);
+        await axiosInstance.get(`/coupons/delete/${id}`);
         setCoupons(coupons.filter((coupon) => coupon._id !== id));
       } catch (err) {
         alert("Error deleting Offer: " + err.message);

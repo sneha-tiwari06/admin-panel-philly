@@ -28,7 +28,7 @@ function ManageFAQ() {
     );
     if (confirmed) {
       try {
-        await axiosInstance.get(`/faqs/${id}`);
+        await axiosInstance.get(`/faqs/delete/${id}`);
         setFaqs(faqs.filter((faq) => faq._id !== id));
       } catch (err) {
         alert("Error deleting tour: " + err.message);
