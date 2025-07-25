@@ -199,7 +199,7 @@ function Dashboard() {
           <Col md={4}>
             <Link to="/manage-events" style={{ textDecoration: 'none' }}>
               <Card className="text-center p-3">
-                <h2 className="heading-cards">Event Booked</h2>
+                <h2 className="heading-cards">Event Added</h2>
                 <h4>{totalEvents}</h4>
               </Card>
             </Link>
@@ -219,8 +219,8 @@ function Dashboard() {
                       <th>#</th>
                       <th>Tour Name</th>
                       <th>Name</th>
-                      <th>Adults</th>
-                      <th>Kids</th>
+                      <th>Members</th>
+                      <th>Cars</th>
                       <th>Booking Date</th>
                     </tr>
                   </thead>
@@ -229,7 +229,7 @@ function Dashboard() {
                       <tr
                         key={booking._id || i}
                         onClick={() => handleRowClick(booking)}
-                        style={{ 
+                        style={{
                           cursor: "pointer",
                           transition: "background-color 0.2s ease"
                         }}
@@ -244,8 +244,9 @@ function Dashboard() {
                               }`.trim()
                             : ""}
                         </td>
-                        <td >{booking.adults}</td>
-                        <td >{booking.kids}</td>
+                        <td>{(booking.adults || 0) + (booking.kids || 0)}</td>
+
+                        <td >{booking.number_of_cars}</td>
                         <td >
                           {booking.bookingDate
                             ? `${new Date(booking.bookingDate).toLocaleDateString(
