@@ -25,7 +25,12 @@ function ManageBookings() {
         const response = await axiosInstance.get(
           "/complete-booking/bookings-tour"
         );
-        setBookings(response.data.bookings);
+           const newBookings = response.data.bookings || response.data;
+      
+         const sortedBookings = newBookings
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 10);
+        setBookings(sortedBookings);
       } catch (err) {
         setError(err.message);
       } finally {
