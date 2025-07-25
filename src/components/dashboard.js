@@ -86,6 +86,10 @@ function Dashboard() {
       <table className="table table-bordered table-striped">
         <tbody>
           <tr>
+            <th>Order ID</th>
+            <td>{selectedBooking.customOrderId || selectedBooking._id}</td>
+          </tr>
+          <tr>
             <th>Tour Name</th>
             <td>{selectedBooking.tour_name}</td>
           </tr>
