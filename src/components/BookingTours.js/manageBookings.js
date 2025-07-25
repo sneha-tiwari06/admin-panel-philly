@@ -28,8 +28,7 @@ function ManageBookings() {
            const newBookings = response.data.bookings || response.data;
       
          const sortedBookings = newBookings
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .slice(0, 10);
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setBookings(sortedBookings);
       } catch (err) {
         setError(err.message);
@@ -109,12 +108,12 @@ function ManageBookings() {
             >
               View Details
             </button>
-            {/* <button
+            <button
               className="btn btn-sm btn-danger"
               onClick={() => handleDelete(row._id)}
             >
               Delete
-            </button> */}
+            </button>
           </div>
         ),
         ignoreRowClick: true,
@@ -133,6 +132,10 @@ function ManageBookings() {
     return (
       <table className="table table-bordered table-striped">
         <tbody>
+          <tr>
+            <th>Order ID</th>
+             <td>{selectedBooking.customOrderId || selectedBooking._id}</td>
+          </tr>
           <tr>
             <th>Tour Name</th>
             <td>{selectedBooking.tour_name}</td>
