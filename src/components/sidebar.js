@@ -102,6 +102,7 @@ function Sidebar({ children }) {
     "Manage Blogs",
     "Manage Testimonials",
     "Manage FAQs",
+    "Manage Events",
   ];
 
   // Filter menu items if role is subadmin
