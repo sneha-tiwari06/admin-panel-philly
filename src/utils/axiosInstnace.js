@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  // baseURL: "https://api.phillycitytours.com/api",
-  baseURL: 'http://localhost:5000/api',
+  baseURL: "https://api.phillycitytours.com/api",
+  // baseURL: 'http://localhost:5000/api',
   headers: {
     "Content-Type": "application/json",
   },
@@ -31,7 +31,7 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-// export const BASE_IMAGE_URL = "https://api.phillycitytours.com";
-export const BASE_IMAGE_URL = 'http://localhost:5000';
+export const BASE_IMAGE_URL = "https://api.phillycitytours.com";
+// export const BASE_IMAGE_URL = 'http://localhost:5000';
 
 export default axiosInstance;

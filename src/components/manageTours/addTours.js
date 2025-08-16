@@ -22,6 +22,7 @@ const AddTours = () => {
   const [adultPrice, setAdultPrice] = useState("");
   const [kidsPrice, setKidsPrice] = useState("");
   const [showOnHomepage, setShowOnHomepage] = useState(false);
+  const [tourSchema, setTourSchema] = useState("");
 
   // Fetch categories and tour (if editing)
   useEffect(() => {
@@ -44,6 +45,7 @@ const AddTours = () => {
         setAdultPrice(data.adultPrice || "");
         setKidsPrice(data.kidsPrice || "");
         setShowOnHomepage(data.showOnHome || false);
+        setTourSchema(data.tourSchema || "");
       });
     }
   }, [id]);
@@ -76,6 +78,7 @@ const AddTours = () => {
       formData.append("category", selectedCategory?._id || "");
       formData.append("slugURL", slugURL);
       formData.append("content", content);
+      formData.append("tourSchema", tourSchema);
       formData.append("metaTags", JSON.stringify(metaTags));
 
       if (isPrivateTour) {
@@ -258,6 +261,15 @@ const AddTours = () => {
                 <label className="form-check-label" htmlFor="showOnHomepage">
                   Show on Homepage
                 </label>
+              </div>
+               <div className="col-md-12">
+                <label>Tour Schema</label>
+                <textarea
+                  className="form-control"
+                  value={tourSchema}
+                  onChange={(e) => setTourSchema(e.target.value)}
+                  required
+                />
               </div>
             </div>
 
