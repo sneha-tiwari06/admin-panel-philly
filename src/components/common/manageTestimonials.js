@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstnace";
 import TableContainer from "../../common/TableContainer";
+import { Edit, Trash, Trash2 } from "lucide-react";
 
 function ManageTestimonials() {
   const [testimonial, setTestimonials] = useState([]);
@@ -64,7 +65,7 @@ function ManageTestimonials() {
           <div className="d-flex gap-2">
             <Link to={`/edit-testimonials/${row._id}`}>
               <button type="button" className="btn btn-warning btn-sm">
-                Edit
+                <Edit size={14} />
               </button>
             </Link>
             <button
@@ -72,7 +73,7 @@ function ManageTestimonials() {
               className="btn btn-danger btn-sm"
               onClick={() => handleDelete(row._id)}
             >
-              Delete
+              <Trash size={14} />
             </button>
           </div>
         ),

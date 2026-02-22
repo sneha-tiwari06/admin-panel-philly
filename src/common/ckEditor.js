@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import JoditEditor from "jodit-react";
 
-export default function TextEditor({ value, onChange }) {
+export default function TextEditor({ value, onChange, height = 400 }) {
   const editor = useRef(null);
 
   return (
@@ -11,7 +11,7 @@ export default function TextEditor({ value, onChange }) {
       config={{
         readonly: false,
         toolbarSticky: false,
-        height: 400,
+        height: height,
         buttons: [
           "source", "bold", "italic", "underline", "strikethrough", "ul", "ol", "outdent", "indent",
           "font", "fontsize", "brush", "paragraph", "formatBlock", "image", "table", "link", "align",

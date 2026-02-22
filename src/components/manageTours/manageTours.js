@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstnace";
 import TableContainer from "../../common/TableContainer";
 import { Switch } from "@mui/material";
+import { Edit, Image, Trash } from "lucide-react";
 
 function ManageTours() {
   const [tours, setTours] = useState([]);
@@ -88,12 +89,12 @@ const columns = useMemo(
         <div className="d-flex gap-2">
           <Link to={`/edit-tour/${row._id}`}>
             <button type="button" className="btn btn-warning btn-sm">
-              Edit
+              <Edit size={14} />
             </button>
           </Link>
           <Link to={`/manage-gallery/${row._id}`}>
             <button type="button" className="btn btn-info btn-sm">
-              Gallery
+              <Image size={14} />
             </button>
           </Link>
           <button
@@ -101,7 +102,7 @@ const columns = useMemo(
             className="btn btn-danger btn-sm"
             onClick={() => handleDelete(row._id)}
           >
-            Delete
+            <Trash size={14} />
           </button>
         </div>
       ),

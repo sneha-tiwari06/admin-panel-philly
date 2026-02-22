@@ -13,8 +13,10 @@ const AddBlog = () => {
   const [imgName, setImgName] = useState("");
   const [blogDate, setBlogDate] = useState("");
   const [blogLink, setBlogLink] = useState("");
+  const [shortOverview, setShortOverview] = useState("");
   const [blogDesc, setBlogDesc] = useState("");
   const [blogSchema, setBlogSchema] = useState("");
+  const [tableContent, setTableContent] = useState("");
   const [file, setFile] = useState(null);
   const [previewURL, setPreviewURL] = useState("");
   const fileInputRef = useRef(null);
@@ -31,7 +33,9 @@ const AddBlog = () => {
           setBlogName(data.blogName || "");
           setBlogDate(data?.blogDate ? data.blogDate.slice(0, 10) : "");
           setBlogLink(data.blogLink || "");
+          setShortOverview(data.shortOverview || "");
           setBlogDesc(data.blogDesc || "");
+          setTableContent(data.tableContent || "");
           setBlogSchema(data.blogSchema || "");
           setImgName(data.imgName || "");
           setShowOnHomepage(data.showOnHomepage || false);
@@ -62,7 +66,9 @@ const AddBlog = () => {
       formData.append("blogName", blogName);
       formData.append("blogDate", blogDate);
       formData.append("blogLink", blogLink);
+      formData.append("shortOverview", shortOverview);
       formData.append("blogDesc", blogDesc);
+      formData.append("tableContent", tableContent);
       formData.append("imgName", imgName);
       formData.append("blogSchema", blogSchema);
       formData.append("showOnHomepage", showOnHomepage);
@@ -190,6 +196,14 @@ const AddBlog = () => {
                 )}
               </div>
 
+              <div className="col-md-12">
+                <label>Short Overview</label>
+                <TextEditor value={shortOverview} onChange={setShortOverview} height="120px" />
+              </div>
+              <div className="col-md-12">
+                <label>Table of Content</label>
+                <TextEditor value={tableContent} onChange={setTableContent} height="150px" />
+              </div>
               <div className="col-md-12">
                 <label>Blog Description</label>
                 <TextEditor value={blogDesc} onChange={setBlogDesc} />

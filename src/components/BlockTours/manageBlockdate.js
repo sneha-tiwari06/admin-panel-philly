@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstnace";
 import TableContainer from "../../common/TableContainer";
+import { Delete, Edit, Trash } from "lucide-react";
 
 function ManageBlockDate() {
   const [blockDate, setBlockDate] = useState([]);
@@ -85,7 +86,7 @@ function ManageBlockDate() {
           <div className="action-btn2">
             <Link to={`/edit-block-time/${row._id}`}>
               <button type="button" className="w-auto btn btn-warning">
-                Edit
+                <Edit size={14} />
               </button>
             </Link>
             <button
@@ -93,7 +94,7 @@ function ManageBlockDate() {
               className="w-auto btn btn-danger"
               onClick={() => handleDelete(row._id)}
             >
-              Delete
+              <Trash size={14} />
             </button>
           </div>
         ),

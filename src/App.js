@@ -35,6 +35,10 @@ import ManageContactQuery from "./components/contactQueries/contactQueries";
 import DashboardSubAdmin from "./components/dashboard-subadmin";
 import ManageUsers from "./components/Users/manage-users";
 import AddUsers from "./components/Users/add-users";
+import AddMeta from "./components/Blogs/AddMeta";
+import ManageMeta from "./components/Blogs/MetaList";
+import AddBlogFaq from "./components/Blogs/AddBlogFaq";
+import ManageBlogFaq from "./components/Blogs/BlogFaqList";
 
 function App() {
   return (
@@ -91,6 +95,13 @@ function App() {
             <Route path="/add-offers" element={<Coupons />} />
             <Route path="/edit-coupon/:id" element={<Coupons />} />
             <Route path="/offers" element={<Offers />} />
+            <Route path="/manage-meta/:slug" element={<ManageMeta />} />
+            <Route path="/add-meta/:slug" element={<AddMeta />} />
+            <Route path="/edit-meta/:slug/:id" element={<AddMeta />} />
+            <Route path="/manage-blog-faq/:slug" element={<ManageBlogFaq />} />
+            <Route path="/add-blog-faq/:slug" element={<AddBlogFaq />} />
+            <Route path="/edit-blog-faq/:slug/:id" element={<AddBlogFaq />} />
+
             <Route
               path="/manage-contact-queries"
               element={<ManageContactQuery />}

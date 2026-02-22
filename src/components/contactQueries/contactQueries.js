@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axiosInstance from "../../utils/axiosInstnace";
 import TableContainer from "../../common/TableContainer";
+import { Eye } from "lucide-react";
 
 function ManageContactQuery() {
   const [contacts, setContacts] = useState([]);
@@ -55,7 +56,7 @@ function ManageContactQuery() {
               className="btn btn-warning btn-sm"
               onClick={() => setSelectedContact(row)}
             >
-              View
+              <Eye size={14} />
             </button>
           </div>
         ),

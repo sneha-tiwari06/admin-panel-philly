@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axiosInstance from "../../utils/axiosInstnace";
 import TableContainer from "../../common/TableContainer";
-
+import { Eye, Trash } from "lucide-react";
 function ManageBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,13 +106,13 @@ function ManageBookings() {
               data-bs-target="#bookingDetailModal"
               onClick={() => setSelectedBooking(row)}
             >
-              View Details
+              <Eye size={14} />
             </button>
             <button
               className="btn btn-sm btn-danger"
               onClick={() => handleDelete(row._id)}
             >
-              Delete
+              <Trash size={14} />
             </button>
           </div>
         ),

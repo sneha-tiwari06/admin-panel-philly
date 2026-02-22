@@ -292,3 +292,13 @@ label {
 .jodit-status-bar-link {
   display: none !important;
 }
+.meta-btn{
+  background-color: #15283c;  
+  border-radius: 20px;
+  color: #fff;
+  font-weight: 600;
+}
+.meta-btn:hover {
+  background-color: #354f76;
+  color: #fff;
+}

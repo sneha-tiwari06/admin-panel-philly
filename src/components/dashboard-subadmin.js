@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Card, Button, ProgressBar, Badge, Row, Col } from "react-bootstrap";
 import axiosInstance from "../utils/axiosInstnace";
 import { Link } from "react-router-dom";
+import { Eye } from "lucide-react";
 
-const BLOG_TARGET = 3;
+const BLOG_TARGET = 5;
 const TESTIMONIAL_TARGET = 10;
 const FAQ_TARGET = 50;
 
@@ -198,13 +199,13 @@ const DashboardSubAdmin = () => {
                       <td>{new Date(blog.createdAt).toLocaleString()}</td>
                       <td>
                         <Button
-                          variant="outline-secondary"
+                          
                           size="sm"
                           className="me-2"
                           as="a"
                           href={`/manage-blogs`}
                         >
-                          View Blog
+                          <Eye size={14} />
                         </Button>
                       </td>
                     </tr>

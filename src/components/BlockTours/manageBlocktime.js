@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstnace";
 import TableContainer from "../../common/TableContainer";
+import { Edit, Trash } from "lucide-react";
 
 function ManageBlockTime() {
   const [blockTime, setBlockTime] = useState([]);
@@ -90,7 +91,7 @@ const columns = useMemo(
         <div className="action-btn2">
           <Link to={`/edit-block-time/${row._id}`}>
             <button type="button" className="w-auto btn btn-warning">
-              Edit
+              <Edit size={14} />
             </button>
           </Link>
           <button
@@ -98,7 +99,7 @@ const columns = useMemo(
             className="w-auto btn btn-danger"
             onClick={() => handleDelete(row._id)}
           >
-            Delete
+            <Trash size={14} />
           </button>
         </div>
       ),

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstnace";
 import TableContainer from "../../common/TableContainer";
+import { Edit, Plus, Trash } from "lucide-react";
 
 function ManageBlogs() {
   const [blogs, setBlogs] = useState([]);
@@ -48,20 +49,55 @@ function ManageBlogs() {
       name: "Blog Name",
       selector: (row) => row.blogName,
       sortable: true,
+       width: "300px",
     },
     {
       name: "Blog Link",
       selector: (row) => row.blogLink,
       sortable: true,
+      width: "300px",
+    },
+    {
+      name: "Meta",
+      width: "120px",
+      cell: (row) => (
+        <div className="d-flex gap-2">
+          <Link to={`/manage-meta/${row.blogLink}`}>
+            <button type="button" className="btn btn-info btn-sm">
+              Meta
+            </button>
+          </Link>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      name: "FAQ",
+      width: "120px",
+      cell: (row) => (
+        <div className="d-flex gap-2">
+          <Link to={`/manage-blog-faq/${row.blogLink}`}>
+            <button type="button" className="btn btn-secondary btn-sm">
+              FAQ
+            </button>
+          </Link>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
     },
     {
       name: "Action",
        width: "300px",
       cell: (row) => (
         <div className="d-flex gap-2">
+         
           <Link to={`/edit-blog/${row.blogLink}`}>
             <button type="button" className="btn btn-warning btn-sm">
-              Edit
+              <Edit size={14} />
             </button>
           </Link>
           <button
@@ -69,7 +105,7 @@ function ManageBlogs() {
             className="btn btn-danger btn-sm"
             onClick={() => handleDelete(row._id)}
           >
-            Delete
+            <Trash size={14} />
           </button>
         </div>
       ),
