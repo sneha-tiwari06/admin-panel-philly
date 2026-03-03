@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstnace";
 
+const initialFaqItem = () => ({ question: "", answer: "" });
+
 const AddBlogFaq = () => {
   const { slug, id } = useParams();
   const navigate = useNavigate();
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+  const [faqList, setFaqList] = useState([initialFaqItem()]);
   const [loading, setLoading] = useState(false);
   const isEdit = Boolean(id);
 
@@ -23,6 +26,23 @@ const AddBlogFaq = () => {
     }
   }, [id]);
 
+  const addMoreFaq = () => {
+    setFaqList((prev) => [...prev, initialFaqItem()]);
+  };
+
+  const removeFaq = (index) => {
+    if (faqList.length <= 1) return;
+    setFaqList((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateFaqItem = (index, field, value) => {
+    setFaqList((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], [field]: value };
+      return next;
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -33,10 +53,15 @@ const AddBlogFaq = () => {
           answer,
         });
       } else {
-        await axiosInstance.post("/blog-faqs/add", {
+        const validFaqs = faqList.filter((f) => f.question.trim() && f.answer.trim());
+        if (validFaqs.length === 0) {
+          alert("Please fill at least one FAQ with both question and answer.");
+          setLoading(false);
+          return;
+        }
+        await axiosInstance.post("/blog-faqs/add-bulk", {
           blogSlug: slug,
-          question,
-          answer,
+          faqs: validFaqs,
         });
       }
       navigate(`/manage-blog-faq/${slug}`);
@@ -53,37 +78,86 @@ const AddBlogFaq = () => {
       <div className="container-lg">
         <div className="py-5 px-4 bg-white mvh-100">
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h2>{isEdit ? "Edit FAQ" : "Add New FAQ"}</h2>
+            <h2>{isEdit ? "Edit FAQ" : "Add New FAQ(s)"}</h2>
             <Link to={slug ? `/manage-blog-faq/${slug}` : "/manage-blogs"}>
-              <button className="btn btn-primary">Back</button>
+              <button type="button" className="btn btn-primary">Back</button>
             </Link>
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="row gx-3 gy-4">
-              <div className="col-md-12">
-                <label>Question</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  required
-                />
+            {isEdit ? (
+              <div className="row gx-3 gy-4">
+                <div className="col-md-12">
+                  <label>Question</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="col-md-12">
+                  <label>Answer</label>
+                  <textarea
+                    className="form-control"
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
-
-              <div className="col-md-12">
-                <label>Answer</label>
-                <textarea
-                  className="form-control"
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-            <button type="submit" className="btn btn-primary mt-4" disabled={loading}>
-              {isEdit ? "Update FAQ" : "Create FAQ"}
+            ) : (
+              <>
+                {faqList.map((faq, index) => (
+                  <div key={index} className="border rounded p-3 mb-3 bg-light">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <span className="text-muted fw-medium">FAQ #{index + 1}</span>
+                      {faqList.length > 1 && (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => removeFaq(index)}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    <div className="row gx-3 gy-3">
+                      <div className="col-md-12">
+                        <label className="form-label">Question</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={faq.question}
+                          onChange={(e) => updateFaqItem(index, "question", e.target.value)}
+                          placeholder="Enter question"
+                        />
+                      </div>
+                      <div className="col-md-12">
+                        <label className="form-label">Answer</label>
+                        <textarea
+                          className="form-control"
+                          value={faq.answer}
+                          onChange={(e) => updateFaqItem(index, "answer", e.target.value)}
+                          placeholder="Enter answer"
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="btn btn-outline-primary mt-4"
+                  onClick={addMoreFaq}
+                >
+                  + Add more FAQ
+                </button>
+              </>
+            )}
+            <button type="submit" className="btn btn-primary mt-4" disabled={loading} style={{marginLeft: '12px'}}>
+              {isEdit ? "Update FAQ" : "Create FAQ(s)"}
             </button>
           </form>
         </div>

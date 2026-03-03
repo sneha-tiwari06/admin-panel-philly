@@ -90,6 +90,12 @@ function ManageBlogs() {
       button: true,
     },
     {
+      name: "Created At",
+      selector: (row) => row.createdAt.slice(0, 10),
+      sortable: true,
+      width: "120px",
+    },
+    {
       name: "Action",
        width: "300px",
       cell: (row) => (
