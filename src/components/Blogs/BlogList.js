@@ -47,7 +47,15 @@ function ManageBlogs() {
     },
     {
       name: "Blog Name",
-      selector: (row) => row.blogName,
+      cell: (row) => (
+        <a
+          href={`https://www.phillycitytours.com/blogs/${row.blogLink}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {row.blogName}
+        </a>
+      ),
       sortable: true,
        width: "300px",
     },
