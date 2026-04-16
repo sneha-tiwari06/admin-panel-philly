@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axiosInstance, { BASE_IMAGE_URL } from "../../utils/axiosInstnace";
 import TextEditor from "../../common/ckEditor";
+import Toast from "react-bootstrap/Toast";
+import ToastContainer from "react-bootstrap/ToastContainer";
 
 const AddBlog = () => {
   const { slug } = useParams();
@@ -21,6 +23,21 @@ const AddBlog = () => {
   const [previewURL, setPreviewURL] = useState("");
   const fileInputRef = useRef(null);
   const [showOnHomepage, setShowOnHomepage] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState({
+    show: false,
+    title: "",
+    message: "",
+    bg: "danger",
+  });
+
+  const notify = ({ title, message, bg = "danger", withAlert = false }) => {
+    if (withAlert) {
+      alert(`${title}: ${message}`);
+    }
+    setToast({ show: true, title, message, bg });
+  };
+
   useEffect(() => {
     if (slug) {
       axiosInstance
@@ -43,7 +60,15 @@ const AddBlog = () => {
             setPreviewURL(`${BASE_IMAGE_URL}${data.attached_document}`);
           }
         })
-        .catch((err) => console.error("Error fetching category details:", err));
+        .catch((err) => {
+          console.error("Error fetching blog details:", err);
+          notify({
+            title: "Load Failed",
+            message: err.response?.data?.message || err.message || "Failed to load blog details.",
+            bg: "danger",
+            withAlert: true,
+          });
+        });
     }
   }, [slug]);
 
@@ -57,6 +82,8 @@ const AddBlog = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     try {
       const formData = new FormData();
@@ -86,14 +113,43 @@ const AddBlog = () => {
         });
       }
 
+      notify({
+        title: slug ? "Update Success" : "Save Success",
+        message: slug ? "Blog updated successfully." : "Blog created successfully.",
+        bg: "success",
+      });
       navigate("/manage-blogs");
     } catch (err) {
       console.error("Error submitting tour:", err);
+      notify({
+        title: "Save Failed",
+        message: err.response?.data?.message || err.message || "Something went wrong while saving blog.",
+        bg: "danger",
+        withAlert: true,
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="bg-light">
+      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
+        <Toast
+          bg={toast.bg}
+          onClose={() => setToast((prev) => ({ ...prev, show: false }))}
+          show={toast.show}
+          delay={3500}
+          autohide
+        >
+          <Toast.Header closeButton>
+            <strong className="me-auto">{toast.title || "Notification"}</strong>
+          </Toast.Header>
+          <Toast.Body className={toast.bg === "success" ? "text-white" : "text-white"}>
+            {toast.message}
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
       <div className="container-lg">
         <div className="py-5 px-4 bg-white mvh-100">
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -232,8 +288,14 @@ const AddBlog = () => {
 
             </div>
 
-            <button type="submit" className="btn btn-primary mt-4">
-              {slug ? "Update Blog" : "Create Blog"}
+            <button type="submit" className="btn btn-primary mt-4" disabled={isSubmitting}>
+              {isSubmitting
+                ? slug
+                  ? "Updating..."
+                  : "Saving..."
+                : slug
+                ? "Update Blog"
+                : "Create Blog"}
             </button>
           </form>
         </div>
