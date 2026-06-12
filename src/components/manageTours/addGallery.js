@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axiosInstance, { BASE_IMAGE_URL } from "../../utils/axiosInstnace";
+import axiosInstance, { getImageUrl } from "../../utils/axiosInstnace";
 
 const AddGallery = () => {
   const { tourId, galleryId } = useParams();
@@ -26,7 +26,7 @@ const AddGallery = () => {
             {
               galleryAltText: data.galleryAltText,
               file: null,
-              imageUrl: `${BASE_IMAGE_URL}${data.imagePath}`,
+              imageUrl: getImageUrl(data.imagePath),
             },
           ];
 
@@ -72,20 +72,25 @@ const AddGallery = () => {
       const formData = new FormData();
       formData.append("tourId", tourId);
 
-      // Append gallery data (as JSON string)
+      // Filename(s) must come BEFORE file(s) so multer has them in req.body
+      const firstFile = galleryFields.find((f) => f.file);
+      if (firstFile?.file && galleryId) {
+        formData.append("attached_document_filename", firstFile.file.name);
+      }
+
       formData.append(
         "galleryData",
         JSON.stringify(
           galleryFields.map((field) => ({
             galleryAltText: field.galleryAltText,
+            fileName: field.file?.name || "",
           }))
         )
       );
 
-      // Append all files
       galleryFields.forEach((field) => {
         if (field.file) {
-          formData.append("files", field.file);
+          formData.append("files", field.file, field.file.name);
         }
       });
 

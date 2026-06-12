@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import axiosInstance, { BASE_IMAGE_URL } from "../../utils/axiosInstnace";
+import axiosInstance, { getImageUrl } from "../../utils/axiosInstnace";
 import TableContainer from "../../common/TableContainer";
 
 function ManageGallery() {
@@ -51,13 +51,11 @@ function ManageGallery() {
         name: "Image",
         selector: (row) => row.imagePath,
         cell: (row) => {
-          let imgPath = row.imagePath;
-          if (!imgPath.startsWith("/uploads")) {
-            imgPath = `/uploads/galleryImages/${imgPath}`;
-          }
+          const imgPath = row.imagePath;
+          const src = !imgPath ? "" : imgPath.startsWith("http") ? imgPath : getImageUrl(imgPath);
           return (
             <img
-              src={`${BASE_IMAGE_URL}${imgPath}`}
+              src={src}
               alt={row.galleryAltText}
               style={{ width: "100px", height: "60px", objectFit: "cover" }}
             />

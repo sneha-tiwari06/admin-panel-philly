@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axiosInstance, { BASE_IMAGE_URL } from "../../utils/axiosInstnace";
+import axiosInstance, { getImageUrl } from "../../utils/axiosInstnace";
 import TextEditor from "../../common/ckEditor";
 
 const AddBlog = () => {
@@ -40,7 +40,7 @@ const AddBlog = () => {
           setImgName(data.imgName || "");
           setShowOnHomepage(data.showOnHomepage || false);
           if (data.attached_document) {
-            setPreviewURL(`${BASE_IMAGE_URL}${data.attached_document}`);
+            setPreviewURL(getImageUrl(data.attached_document));
           }
         })
         .catch((err) => console.error("Error fetching category details:", err));
@@ -74,7 +74,8 @@ const AddBlog = () => {
       formData.append("showOnHomepage", showOnHomepage);
 
       if (file) {
-        formData.append("attached_document", file);
+        formData.append("attached_document_filename", file.name);
+        formData.append("attached_document", file, file.name);
       }
       if (slug) {
         await axiosInstance.post(`/blogs/update/${slug}`, formData, {

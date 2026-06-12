@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axiosInstance, { BASE_IMAGE_URL } from "../../utils/axiosInstnace";
+import axiosInstance, { getImageUrl } from "../../utils/axiosInstnace";
 
 const ManageCategory = () => {
   const { id } = useParams();
@@ -22,7 +22,7 @@ const ManageCategory = () => {
           setSlugURL(slugURL);
 
           if (attached_document) {
-            setPreviewURL(`${BASE_IMAGE_URL}${attached_document}`);
+            setPreviewURL(getImageUrl(attached_document));
           }
         })
         .catch((err) => console.error("Error fetching category details:", err));
@@ -43,9 +43,10 @@ const ManageCategory = () => {
       const formData = new FormData();
       formData.append("category", category);
       formData.append("slugURL", slugURL);
-
+      // Must send filename BEFORE file so multer has it in req.body when handling the file
       if (file) {
-        formData.append("attached_document", file);
+        formData.append("attached_document_filename", file.name);
+        formData.append("attached_document", file, file.name);
       }
 
       if (id) {

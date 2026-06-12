@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axiosInstance, { BASE_IMAGE_URL } from "../../utils/axiosInstnace";
+import axiosInstance from "../../utils/axiosInstnace";
 
 const BlockTime = () => {
   const { id } = useParams();
