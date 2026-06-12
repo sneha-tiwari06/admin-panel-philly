@@ -3,20 +3,62 @@ import JoditEditor from "jodit-react";
 
 export default function TextEditor({ value, onChange, height = 400 }) {
   const editor = useRef(null);
+  const cleanEditorHtml = (html = "") => {
+    if (typeof html !== "string" || !html) return "";
+    const normalized = html.trim();
+    if (
+      /^<p><br><\/p>$/i.test(normalized) ||
+      /^<p>(&nbsp;|\s|<br>)*<\/p>$/i.test(normalized) ||
+      /^<div>(&nbsp;|\s|<br>)*<\/div>$/i.test(normalized)
+    ) {
+      return "";
+    }
+
+    const container = document.createElement("div");
+    container.innerHTML = normalized;
+
+    const textOnly = (container.textContent || "").replace(/\u00A0/g, " ").trim();
+    if (!textOnly) return "";
+
+    return normalized;
+  };
+  const normalizedValue = value || "";
+  const getEditorInstance = (instanceArg) =>
+    instanceArg || editor.current?.editor || editor.current;
+  const sanitizeInstanceValue = (instanceArg) => {
+    const instance = getEditorInstance(instanceArg);
+    if (!instance || typeof instance.value !== "string") return;
+    const cleaned = cleanEditorHtml(instance.value);
+    if (!cleaned && instance.value) instance.value = "";
+  };
 
   return (
     <JoditEditor
       ref={editor}
-      value={value}
+      value={normalizedValue}
       config={{
         readonly: false,
         toolbarSticky: false,
         height: height,
+        enter: "BR",
+        defaultMode: 1,
+        useSearch: false,
+        beautifyHTML: false,
+        nl2brInPlainText: false,
+        cleanHTML: {
+          fillEmptyParagraph: false,
+          removeEmptyElements: true,
+        },
         buttons: [
           "source", "bold", "italic", "underline", "strikethrough", "ul", "ol", "outdent", "indent",
           "font", "fontsize", "brush", "paragraph", "formatBlock", "image", "table", "link", "align",
           "undo", "redo", "hr", "copyformat", "fullsize"
         ],
+        events: {
+          afterInit: (instance) => sanitizeInstanceValue(instance),
+          afterSetMode: (instance) => sanitizeInstanceValue(instance),
+          blur: (instance) => sanitizeInstanceValue(instance),
+        },
         uploader: { insertImageAsBase64URI: true },
         style: {
           "p": "Paragraph",
@@ -46,8 +88,8 @@ export default function TextEditor({ value, onChange, height = 400 }) {
         }
       }}
       tabIndex={1}
-      onBlur={newContent => onChange(newContent)}
-      onChange={() => {}} // required for controlled mode, but you can leave it empty
+      onBlur={(newContent) => onChange(cleanEditorHtml(newContent))}
+      onChange={() => {}} // keep editor uncontrolled while typing to prevent focus jump
     />
   );
 }
