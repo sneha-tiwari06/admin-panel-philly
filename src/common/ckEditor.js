@@ -23,13 +23,36 @@ export default function TextEditor({ value, onChange, height = 400 }) {
     return normalized;
   };
   const normalizedValue = value || "";
-  const getEditorInstance = (instanceArg) =>
-    instanceArg || editor.current?.editor || editor.current;
+  const getEditorInstance = (instanceArg) => {
+    if (instanceArg && typeof instanceArg === "object" && "value" in instanceArg) {
+      return instanceArg;
+    }
+    return editor.current?.editor || editor.current;
+  };
+
+  const getInstanceValue = (instance) => {
+    if (!instance) return null;
+    try {
+      const currentValue = instance.value;
+      return typeof currentValue === "string" ? currentValue : null;
+    } catch {
+      return null;
+    }
+  };
+
   const sanitizeInstanceValue = (instanceArg) => {
-    const instance = getEditorInstance(instanceArg);
-    if (!instance || typeof instance.value !== "string") return;
-    const cleaned = cleanEditorHtml(instance.value);
-    if (!cleaned && instance.value) instance.value = "";
+    try {
+      const instance = getEditorInstance(instanceArg);
+      const currentValue = getInstanceValue(instance);
+      if (currentValue === null) return;
+
+      const cleaned = cleanEditorHtml(currentValue);
+      if (!cleaned && currentValue) {
+        instance.value = "";
+      }
+    } catch {
+      // Jodit source mode uses a different internal state — skip sanitization
+    }
   };
 
   return (
@@ -56,7 +79,6 @@ export default function TextEditor({ value, onChange, height = 400 }) {
         ],
         events: {
           afterInit: (instance) => sanitizeInstanceValue(instance),
-          afterSetMode: (instance) => sanitizeInstanceValue(instance),
           blur: (instance) => sanitizeInstanceValue(instance),
         },
         uploader: { insertImageAsBase64URI: true },

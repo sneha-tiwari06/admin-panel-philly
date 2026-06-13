@@ -21,8 +21,10 @@ function Login() {
       if (response.status === 200) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.role);
+        localStorage.setItem("username", username);
         sessionStorage.setItem("token", data.token);
         sessionStorage.setItem("role", data.role);
+        sessionStorage.setItem("username", username);
         if (data.role === "subadmin") {
           navigate("/dashboard-subadmin");
         } else {

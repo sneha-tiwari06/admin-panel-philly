@@ -1,19 +1,28 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstnace";
 import TableContainer from "../../common/TableContainer";
-import { Edit, Trash } from "lucide-react";
+import {
+  Plus,
+  Search,
+  HelpCircle,
+  Edit,
+  Trash,
+  Layers,
+} from "lucide-react";
+import "../../styles/admin-page.css";
 
 function ManageFAQ() {
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchFaqs = async () => {
       try {
         const response = await axiosInstance.get("/faqs");
-        setFaqs(response.data);
+        setFaqs(response.data || []);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -23,86 +32,220 @@ function ManageFAQ() {
     fetchFaqs();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this FAQ?"
     );
-    if (confirmed) {
-      try {
-        await axiosInstance.get(`/faqs/delete/${id}`);
-        setFaqs(faqs.filter((faq) => faq._id !== id));
-      } catch (err) {
-        alert("Error deleting tour: " + err.message);
-      }
+    if (!confirmed) return;
+
+    try {
+      await axiosInstance.get(`/faqs/delete/${id}`);
+      setFaqs((prev) => prev.filter((faq) => faq._id !== id));
+    } catch (err) {
+      alert("Error deleting FAQ: " + err.message);
     }
-  };
+  }, []);
 
- const columns = useMemo(
-  () => [
-    {
-      name: "Index",
-      cell: (row, index) => index + 1,
-      width: "80px",
-      sortable: false,
-    },
-    {
-      name: "Category",
-      selector: (row) => row.category?.slugURL || "N/A",
-      sortable: true,
-      wrap: true,
-    },
-    {
-      name: "Question",
-      selector: (row) => row.question,
-      cell: (row) => {
-        const words = row.question?.split(" ") || [];
-        const sliced = words.slice(0, 15).join(" ");
-        return words.length > 15 ? `${sliced}...` : sliced;
+  const filteredFaqs = useMemo(() => {
+    if (!searchTerm.trim()) return faqs;
+    const query = searchTerm.toLowerCase();
+    return faqs.filter(
+      (faq) =>
+        faq.question?.toLowerCase().includes(query) ||
+        faq.answer?.toLowerCase().includes(query) ||
+        faq.category?.slugURL?.toLowerCase().includes(query) ||
+        faq.category?.category?.toLowerCase().includes(query)
+    );
+  }, [faqs, searchTerm]);
+
+  const categoryCount = useMemo(() => {
+    const ids = new Set(
+      faqs.map((faq) => faq.category?._id || faq.category?.slugURL).filter(Boolean)
+    );
+    return ids.size;
+  }, [faqs]);
+
+  const columns = useMemo(
+    () => [
+      {
+        name: "#",
+        selector: (_row, index) => index + 1,
+        sortable: false,
+        width: "60px",
       },
-      wrap: true,
-    },
-    {
-      name: "Action",
-      cell: (row) => (
-        <div className="d-flex gap-2">
-          <Link to={`/edit-faqs/${row._id}`}>
-            <button type="button" className="btn btn-warning btn-sm">
-              <Edit size={14} />
-            </button>
-          </Link>
-          <button
-            type="button"
-            className="btn btn-danger btn-sm"
-            onClick={() => handleDelete(row._id)}
+      {
+        name: "Category",
+        selector: (row) => row.category?.slugURL || row.category?.category,
+        sortable: true,
+        grow: 2,
+        cell: (row) => (
+          <span className="admin-badge admin-badge--inactive">
+            {row.category?.category || row.category?.slugURL || "—"}
+          </span>
+        ),
+      },
+      {
+        name: "Question",
+        selector: (row) => row.question,
+        sortable: true,
+        grow: 1.5,
+        cell: (row) => (
+          <span style={{ fontWeight: 600, color: "#0f172a" }}>
+            {row.question || "—"}
+          </span>
+        ),
+      },
+      {
+        name: "Answer",
+        selector: (row) => row.answer,
+        sortable: true,
+        grow: 2,
+        cell: (row) => (
+          <span
+            style={{
+              fontSize: "0.8125rem",
+              color: "#64748b",
+              display: "block",
+              maxWidth: 480,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+            title={row.answer}
           >
-            <Trash size={14} />
-          </button>
-        </div>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-      width: "180px",
-    },
-  ],
-  [faqs]
-);
+            {row.answer || "—"}
+          </span>
+        ),
+      },
+      {
+        name: "Actions",
+        width: "120px",
+        cell: (row) => (
+          <div className="admin-action-group">
+            <Link to={`/edit-faqs/${row._id}`} title="Edit FAQ">
+              <button type="button" className="admin-btn admin-btn--icon admin-btn--edit">
+                <Edit size={15} />
+              </button>
+            </Link>
+            <button
+              type="button"
+              className="admin-btn admin-btn--icon admin-btn--delete"
+              onClick={() => handleDelete(row._id)}
+              title="Delete FAQ"
+            >
+              <Trash size={15} />
+            </button>
+          </div>
+        ),
+        ignoreRowClick: true,
+        allowOverflow: true,
+        button: true,
+      },
+    ],
+    [handleDelete]
+  );
 
+  if (loading) {
+    return (
+      <div className="admin-page">
+        <div className="admin-page__loading">Loading FAQs…</div>
+      </div>
+    );
+  }
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (error) {
+    return (
+      <div className="admin-page">
+        <div className="admin-page__error">Error loading FAQs: {error}</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-100 overview">
-      <div className="section-heading">
-        <h2>Manage FAQS</h2>
-      </div>
-      <div className="action-btn d-flex justify-content-between mb-3">
-        <Link to="/add-faqs">
-          <button className="btn btn-success w-auto">Add FAQS</button>
+    <div className="admin-page">
+      <div className="admin-page__header">
+        <div>
+          <h1 className="admin-page__title">Manage FAQs</h1>
+          <p className="admin-page__subtitle">
+            Organize frequently asked questions by tour category.
+          </p>
+        </div>
+        <Link to="/add-faqs" className="admin-btn admin-btn--primary">
+          <Plus size={18} />
+          Add FAQs
         </Link>
       </div>
-      <TableContainer columns={columns} data={faqs} />
+
+      <div className="admin-page__stats">
+        <div className="admin-page__stat">
+          <div className="admin-page__stat-icon admin-page__stat-icon--amber">
+            <HelpCircle size={20} />
+          </div>
+          <div>
+            <div className="admin-page__stat-label">Total FAQs</div>
+            <div className="admin-page__stat-value">{faqs.length}</div>
+          </div>
+        </div>
+        <div className="admin-page__stat">
+          <div className="admin-page__stat-icon admin-page__stat-icon--slate">
+            <Layers size={20} />
+          </div>
+          <div>
+            <div className="admin-page__stat-label">Categories</div>
+            <div className="admin-page__stat-value">{categoryCount}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-page__card">
+        <div className="admin-page__card-header">
+          <h2 className="admin-page__card-title">All FAQs</h2>
+          <span className="admin-page__card-count">
+            {filteredFaqs.length} of {faqs.length} shown
+          </span>
+        </div>
+
+        <div className="admin-page__toolbar">
+          <div className="admin-page__search">
+            <Search size={16} className="admin-page__search-icon" />
+            <input
+              type="text"
+              className="admin-page__search-input"
+              placeholder="Search by question, answer, or category…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {faqs.length === 0 ? (
+          <div className="admin-page__empty">
+            <div className="admin-page__empty-icon">
+              <HelpCircle size={24} />
+            </div>
+            <h3 className="admin-page__empty-title">No FAQs yet</h3>
+            <p className="admin-page__empty-text">
+              Add frequently asked questions for your tour categories.
+            </p>
+            <Link to="/add-faqs" className="admin-btn admin-btn--primary">
+              <Plus size={18} />
+              Add FAQs
+            </Link>
+          </div>
+        ) : (
+          <TableContainer
+            columns={columns}
+            data={filteredFaqs}
+            noDataComponent={
+              <div className="admin-page__empty" style={{ minHeight: 160 }}>
+                <p className="admin-page__empty-text" style={{ margin: 0 }}>
+                  No FAQs match your search.
+                </p>
+              </div>
+            }
+          />
+        )}
+      </div>
     </div>
   );
 }

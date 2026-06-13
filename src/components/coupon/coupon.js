@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstnace";
+import {
+  ArrowLeft,
+  Save,
+  Tag,
+  Percent,
+  Calendar,
+  MapPin,
+} from "lucide-react";
+import "../../styles/admin-page.css";
 
-const Coupons = () => {
+function Coupons() {
   const { id } = useParams();
+  const isEdit = Boolean(id);
   const navigate = useNavigate();
 
   const [couponName, setCouponName] = useState("");
@@ -16,49 +26,41 @@ const Coupons = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [uses, setUses] = useState("");
-  useEffect(() => {
-    axiosInstance
-      .get("/categories")
-      .then((res) => {
-        setToursList(res.data);
-      })
-      .catch((err) => console.error("Error fetching categories:", err));
+  const [loading, setLoading] = useState(isEdit);
+  const [submitting, setSubmitting] = useState(false);
 
-    if (id) {
-      axiosInstance
-        .get(`/coupons/${id}`)
-        .then((response) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const categoriesRes = await axiosInstance.get("/categories");
+        setToursList(categoriesRes.data || []);
+
+        if (id) {
+          const response = await axiosInstance.get(`/coupons/${id}`);
           const data = response.data;
           setCouponName(data.couponName || "");
           setCode(data.code || "");
           setDiscountType(data.discountType || "");
-          setTotalDiscount(data.totalDiscount || "");
-          setTotalAmount(data.totalAmount || "");
-          setSelectedTour(data.tours[0]?._id || "");
+          setTotalDiscount(data.totalDiscount ?? "");
+          setTotalAmount(data.totalAmount ?? "");
+          setSelectedTour(data.tours?.[0]?._id || "");
           setStartDate(data.startDate ? data.startDate.slice(0, 10) : "");
           setEndDate(data.endDate ? data.endDate.slice(0, 10) : "");
-          setUses(data.uses || "");
-        })
-        .catch((err) => console.error("Error fetching coupon details:", err));
-    }
+          setUses(data.uses ?? "");
+        }
+      } catch (err) {
+        console.error("Error loading coupon form:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [id]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (
-      !couponName ||
-      !code ||
-      !discountType ||
-      !totalDiscount ||
-      !totalAmount ||
-      !selectedTour ||
-      !startDate ||
-      !endDate ||
-      !uses
-    ) {
-      alert("Please fill all the fields!");
-      return;
-    }
+    setSubmitting(true);
 
     try {
       const data = {
@@ -82,89 +84,255 @@ const Coupons = () => {
       navigate("/offers");
     } catch (err) {
       console.error("Error submitting coupon:", err);
+      alert("Failed to save coupon. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  const discountPreview =
+    totalDiscount && discountType === "percentage"
+      ? `${totalDiscount}% off`
+      : totalDiscount && discountType === "fixed-amount"
+      ? `$${totalDiscount} off`
+      : null;
+
+  if (loading) {
+    return (
+      <div className="admin-page">
+        <div className="admin-page__loading">Loading coupon details…</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-light">
-      <div className="container-lg">
-        <div className="py-5 px-4 bg-white mvh-100">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h2>{id ? "Edit Coupon" : "Add Coupon"}</h2>
-            <Link to="/offers">
-              <button className="btn btn-primary">Back</button>
-            </Link>
+    <div className="admin-page">
+      <div className="admin-page__header">
+        <div>
+          <h1 className="admin-page__title">
+            {isEdit ? "Edit Coupon" : "Add Coupon"}
+          </h1>
+          <p className="admin-page__subtitle">
+            {isEdit
+              ? "Update discount details, validity, and applicable tour category."
+              : "Create a new discount code for customers to use at checkout."}
+          </p>
+        </div>
+        <Link to="/offers" className="admin-btn admin-btn--ghost">
+          <ArrowLeft size={18} />
+          Back to Coupons
+        </Link>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <div className="admin-form-stack">
+          <div className="admin-form-card">
+            <div className="admin-form-section">
+              <h2 className="admin-form-section__title">
+                <Tag size={16} style={{ verticalAlign: "middle", marginRight: 6 }} />
+                Coupon Details
+              </h2>
+              <p className="admin-form-section__desc">
+                Basic information customers will see when applying the code.
+              </p>
+
+              <div className="admin-form-grid">
+                <div className="admin-form-group">
+                  <label className="admin-form-label" htmlFor="couponName">
+                    Coupon Name <span>*</span>
+                  </label>
+                  <input
+                    id="couponName"
+                    type="text"
+                    className="admin-form-input"
+                    value={couponName}
+                    onChange={(e) => setCouponName(e.target.value)}
+                    placeholder="e.g. Summer Sale"
+                    required
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label" htmlFor="code">
+                    Coupon Code <span>*</span>
+                  </label>
+                  <input
+                    id="code"
+                    type="text"
+                    className="admin-form-input"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.toUpperCase())}
+                    placeholder="e.g. SUMMER20"
+                    required
+                  />
+                  {code && (
+                    <p className="admin-form-hint">
+                      Customers enter: <span className="admin-slug">{code}</span>
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="row gx-3 gy-4">
-              <div className="col-md-6">
-                <label>Coupon Name</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={couponName}
-                  onChange={(e) => setCouponName(e.target.value)}
-                  required
-                />
-              </div>
+          <div className="admin-form-layout">
+            <div className="admin-form-card">
+              <div className="admin-form-section">
+                <h2 className="admin-form-section__title">
+                  <Percent size={16} style={{ verticalAlign: "middle", marginRight: 6 }} />
+                  Discount Settings
+                </h2>
+                <p className="admin-form-section__desc">
+                  Define how much discount applies and minimum order amount.
+                </p>
 
-              <div className="col-md-6">
-                <label>Coupon Code</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  required
-                />
-              </div>
+                <div className="admin-form-grid">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="discountType">
+                      Discount Type <span>*</span>
+                    </label>
+                    <select
+                      id="discountType"
+                      className="admin-form-select"
+                      value={discountType}
+                      onChange={(e) => setDiscountType(e.target.value)}
+                      required
+                    >
+                      <option value="">Select discount type</option>
+                      <option value="percentage">Percentage (%)</option>
+                      <option value="fixed-amount">Fixed Amount ($)</option>
+                    </select>
+                  </div>
 
-              <div className="col-md-6">
-                <label>Discount Type</label>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="totalDiscount">
+                      Discount Value <span>*</span>
+                    </label>
+                    <input
+                      id="totalDiscount"
+                      type="number"
+                      className="admin-form-input"
+                      value={totalDiscount}
+                      onChange={(e) => setTotalDiscount(e.target.value)}
+                      placeholder={discountType === "percentage" ? "e.g. 20" : "e.g. 50"}
+                      min="0"
+                      required
+                    />
+                  </div>
+
+                  <div className="admin-form-group admin-form-group--full">
+                    <label className="admin-form-label" htmlFor="totalAmount">
+                      Minimum Order Amount <span>*</span>
+                    </label>
+                    <input
+                      id="totalAmount"
+                      type="number"
+                      className="admin-form-input"
+                      value={totalAmount}
+                      onChange={(e) => setTotalAmount(e.target.value)}
+                      placeholder="e.g. 100"
+                      min="0"
+                      required
+                    />
+                    <p className="admin-form-hint">
+                      Minimum cart total required to use this coupon.
+                    </p>
+                  </div>
+
+                  {discountPreview && (
+                    <div className="admin-form-group admin-form-group--full">
+                      <span className="admin-price-badge">
+                        <Percent size={14} />
+                        Preview: {discountPreview}
+                        {totalAmount ? ` on orders over $${totalAmount}` : ""}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-form-card">
+              <div className="admin-form-section">
+                <h2 className="admin-form-section__title">
+                  <Calendar size={16} style={{ verticalAlign: "middle", marginRight: 6 }} />
+                  Validity & Usage
+                </h2>
+                <p className="admin-form-section__desc">
+                  Set when the coupon is valid and how often it can be used.
+                </p>
+
+                <div className="admin-form-grid">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="startDate">
+                      Start Date <span>*</span>
+                    </label>
+                    <input
+                      id="startDate"
+                      type="date"
+                      className="admin-form-input"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="endDate">
+                      End Date <span>*</span>
+                    </label>
+                    <input
+                      id="endDate"
+                      type="date"
+                      className="admin-form-input"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="admin-form-group admin-form-group--full">
+                    <label className="admin-form-label" htmlFor="uses">
+                      Uses Per Customer <span>*</span>
+                    </label>
+                    <input
+                      id="uses"
+                      type="number"
+                      className="admin-form-input"
+                      value={uses}
+                      onChange={(e) => setUses(e.target.value)}
+                      placeholder="e.g. 1"
+                      min="1"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="admin-form-card">
+            <div className="admin-form-section">
+              <h2 className="admin-form-section__title">
+                <MapPin size={16} style={{ verticalAlign: "middle", marginRight: 6 }} />
+                Applicable Tour Category
+              </h2>
+              <p className="admin-form-section__desc">
+                Select which tour category this coupon applies to.
+              </p>
+
+              <div className="admin-form-group" style={{ maxWidth: 480 }}>
+                <label className="admin-form-label" htmlFor="selectedTour">
+                  Tour Category <span>*</span>
+                </label>
                 <select
-                  className="form-control"
-                  value={discountType}
-                  onChange={(e) => setDiscountType(e.target.value)}
-                  required
-                >
-                  <option value="">Select Discount Type</option>
-                  <option value="percentage">Percentage</option>
-                  <option value="fixed-amount">Fixed Amount</option>
-                </select>
-              </div>
-
-              <div className="col-md-6">
-                <label>Discount</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={totalDiscount}
-                  onChange={(e) => setTotalDiscount(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="col-md-6">
-                <label>Total Amount</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={totalAmount}
-                  onChange={(e) => setTotalAmount(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="col-md-6">
-                <label>Tours</label>
-                <select
-                  className="form-control"
+                  id="selectedTour"
+                  className="admin-form-select"
                   value={selectedTour}
                   onChange={(e) => setSelectedTour(e.target.value)}
                   required
                 >
-                  <option value="">Select Tour</option>
+                  <option value="">Select tour category</option>
                   {toursList.map((tour) => (
                     <option key={tour._id} value={tour._id}>
                       {tour.category}
@@ -172,49 +340,31 @@ const Coupons = () => {
                   ))}
                 </select>
               </div>
-
-              <div className="col-md-6">
-                <label>Start Date</label>
-                <input
-                  type="date"
-                  className="form-control"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="col-md-6">
-                <label>End Date</label>
-                <input
-                  type="date"
-                  className="form-control"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="col-md-6">
-                <label>Uses Per Customer</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={uses}
-                  onChange={(e) => setUses(e.target.value)}
-                  required
-                />
-              </div>
             </div>
 
-            <button type="submit" className="btn btn-primary mt-4">
-              {id ? "Update Coupon" : "Create Coupon"}
-            </button>
-          </form>
+            <div className="admin-form-footer admin-form-footer--split">
+              <span className="admin-form-footer__note">
+                Fields marked with <span style={{ color: "#ef4444" }}>*</span> are required.
+              </span>
+              <div className="admin-page__actions">
+                <Link to="/offers" className="admin-btn admin-btn--secondary">
+                  Cancel
+                </Link>
+                <button
+                  type="submit"
+                  className="admin-btn admin-btn--primary"
+                  disabled={submitting}
+                >
+                  <Save size={18} />
+                  {submitting ? "Saving…" : isEdit ? "Update Coupon" : "Create Coupon"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
-};
+}
 
 export default Coupons;

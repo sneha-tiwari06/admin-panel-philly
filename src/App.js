@@ -39,6 +39,10 @@ import AddMeta from "./components/Blogs/AddMeta";
 import ManageMeta from "./components/Blogs/MetaList";
 import AddBlogFaq from "./components/Blogs/AddBlogFaq";
 import ManageBlogFaq from "./components/Blogs/BlogFaqList";
+import ManageItineraries from "./components/Itineraries/manageItineraries";
+import AddItinerary from "./components/Itineraries/addItinerary";
+import ManageItineraryDetails from "./components/Itineraries/manageItineraryDetails";
+import AddItineraryDetail from "./components/Itineraries/addItineraryDetail";
 
 function App() {
   return (
@@ -101,6 +105,12 @@ function App() {
             <Route path="/manage-blog-faq/:slug" element={<ManageBlogFaq />} />
             <Route path="/add-blog-faq/:slug" element={<AddBlogFaq />} />
             <Route path="/edit-blog-faq/:slug/:id" element={<AddBlogFaq />} />
+
+            <Route path="/manage-itineraries" element={<ManageItineraries />} />
+            <Route path="/add-itinerary" element={<AddItinerary />} />
+            <Route path="/edit-itinerary/:slug" element={<AddItinerary />} />
+            <Route path="/manage-itinerary-details" element={<ManageItineraryDetails />} />
+            <Route path="/add-itinerary-detail/:slug" element={<AddItineraryDetail />} />
 
             <Route
               path="/manage-contact-queries"

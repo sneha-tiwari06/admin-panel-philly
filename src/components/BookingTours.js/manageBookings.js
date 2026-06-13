@@ -1,15 +1,47 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import axiosInstance from "../../utils/axiosInstnace";
 import TableContainer from "../../common/TableContainer";
-import { Eye, Trash } from "lucide-react";
+import {
+  Eye,
+  Trash,
+  Search,
+  Ticket,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  X,
+} from "lucide-react";
+import "../../styles/admin-page.css";
+import "../../styles/dashboard.css";
+
+function formatGuestName(booking) {
+  if (!booking?.guestId) return "—";
+  return `${booking.guestId.firstname || "Guest"} ${booking.guestId.lastname || ""}`.trim();
+}
+
+function formatBookingDate(booking) {
+  if (!booking?.bookingDate) return "—";
+  return `${new Date(booking.bookingDate).toLocaleDateString(undefined, {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  })}${booking.bookingTime ? ` · ${booking.bookingTime}` : ""}`;
+}
+
+function getBookingRevenue(booking) {
+  return Number(booking?.paymentId?.total_price) || 0;
+}
+
 function ManageBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-  // Delete handler
-  const handleDelete = async (bookingId) => {
+  const handleDelete = useCallback(async (bookingId) => {
     if (!window.confirm("Are you sure you want to delete this booking?")) return;
     try {
       await axiosInstance.delete(`/complete-booking/bookings/${bookingId}`);
@@ -17,18 +49,16 @@ function ManageBookings() {
     } catch (err) {
       alert("Failed to delete booking: " + (err.response?.data?.message || err.message));
     }
-  };
+  }, []);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axiosInstance.get(
-          "/complete-booking/bookings-tour"
+        const response = await axiosInstance.get("/complete-booking/bookings-tour");
+        const newBookings = response.data.bookings || response.data;
+        const sortedBookings = [...newBookings].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-           const newBookings = response.data.bookings || response.data;
-      
-         const sortedBookings = newBookings
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setBookings(sortedBookings);
       } catch (err) {
         setError(err.message);
@@ -39,80 +69,170 @@ function ManageBookings() {
     fetchBookings();
   }, []);
 
+  const filteredBookings = useMemo(() => {
+    if (!searchTerm.trim()) return bookings;
+    const query = searchTerm.toLowerCase();
+    return bookings.filter(
+      (booking) =>
+        booking.tour_name?.toLowerCase().includes(query) ||
+        formatGuestName(booking).toLowerCase().includes(query) ||
+        booking.guestId?.uemail?.toLowerCase().includes(query) ||
+        booking.customOrderId?.toLowerCase().includes(query)
+    );
+  }, [bookings, searchTerm]);
+
+  const confirmedCount = useMemo(
+    () => bookings.filter((b) => b.order_status).length,
+    [bookings]
+  );
+
+  const pendingCount = bookings.length - confirmedCount;
+
+  const totalRevenue = useMemo(
+    () => bookings.reduce((sum, b) => sum + getBookingRevenue(b), 0),
+    [bookings]
+  );
+
+  const openDetails = (booking) => {
+    setSelectedBooking(booking);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedBooking(null);
+  };
+
   const columns = useMemo(
     () => [
       {
-        name: "Index",
-        selector: (row, index) => index + 1,
+        name: "#",
+        cell: (_row, index) => index + 1,
         sortable: false,
-        width: "70px",
+        width: "60px",
       },
       {
-        name: "Tour Type",
+        name: "Tour",
         selector: (row) => row.tour_name,
         sortable: true,
+        grow: 2,
+        cell: (row) => (
+          <div>
+            <div style={{ fontWeight: 600, color: "#0f172a" }}>{row.tour_name || "—"}</div>
+            {row.customOrderId && (
+              <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: 2 }}>
+                {row.customOrderId}
+              </div>
+            )}
+          </div>
+        ),
       },
       {
-        name: "Name",
-        selector: (row) =>
-          row.guestId
-            ? `${row.guestId.firstname || "Guest"} ${row.guestId.lastname || ""}`.trim()
-            : "",
+        name: "Guest",
+        selector: (row) => formatGuestName(row),
         sortable: true,
-      },
-      {
-        name: "Email",
-        selector: (row) =>
-          row.guestId
-            ? `${row.guestId.uemail || "Email Not Provided"}`.trim()
-            : "",
-        sortable: true,
+        grow: 1.5,
+        cell: (row) => (
+          <div>
+            <div style={{ fontWeight: 500 }}>{formatGuestName(row)}</div>
+            <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 2 }}>
+              {row.guestId?.uemail || "—"}
+            </div>
+          </div>
+        ),
       },
       {
         name: "Members",
-        selector: (row) => row.kids + row.adults,
+        selector: (row) => (row.adults || 0) + (row.kids || 0),
         sortable: true,
+        width: "100px",
+        cell: (row) => (
+          <span>
+            {(row.adults || 0) + (row.kids || 0)}
+            <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>
+              {" "}
+              ({row.adults || 0}A/{row.kids || 0}K)
+            </span>
+          </span>
+        ),
       },
       {
         name: "Cars",
         selector: (row) => row.number_of_cars,
         sortable: true,
+        width: "80px",
+      },
+      {
+        name: "Status",
+        selector: (row) => row.order_status,
+        sortable: true,
+        width: "120px",
+        cell: (row) => (
+          <span
+            className={`admin-badge ${
+              row.order_status ? "admin-badge--active" : "admin-badge--inactive"
+            }`}
+          >
+            {row.order_status ? "Confirmed" : "Pending"}
+          </span>
+        ),
+      },
+      {
+        name: "Payment",
+        width: "100px",
+        cell: (row) => (
+          <span
+            className={`admin-badge ${
+              row.paymentId?.payment_status ? "admin-badge--active" : "admin-badge--inactive"
+            }`}
+          >
+            {row.paymentId?.payment_status ? "Paid" : "Unpaid"}
+          </span>
+        ),
+      },
+      {
+        name: "Total",
+        selector: (row) => getBookingRevenue(row),
+        sortable: true,
+        width: "100px",
+        cell: (row) => {
+          const amount = getBookingRevenue(row);
+          return (
+            <span style={{ fontWeight: 600, color: "#0f172a" }}>
+              {amount ? `$${amount}` : "—"}
+            </span>
+          );
+        },
       },
       {
         name: "Booking Date",
-        selector: (row) =>
-          row.bookingDate
-            ? `${new Date(row.bookingDate).toLocaleDateString(undefined, {
-                weekday: "short",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })} - ${row.bookingTime || ""}`
-            : "",
+        selector: (row) => row.bookingDate,
         sortable: true,
-      },
-      {
-        name: "Created At",
-        selector: (row) => (row.createdAt ? row.createdAt.slice(0, 10) : "-"),
-        sortable: true,
+        grow: 1.5,
+        cell: (row) => (
+          <span style={{ fontSize: "0.8125rem" }}>{formatBookingDate(row)}</span>
+        ),
       },
       {
         name: "Actions",
+        width: "100px",
         cell: (row) => (
-          <div className="d-flex gap-2">
+          <div className="admin-action-group">
             <button
-              className="btn btn-sm btn-primary"
-              data-bs-toggle="modal"
-              data-bs-target="#bookingDetailModal"
-              onClick={() => setSelectedBooking(row)}
+              type="button"
+              className="admin-btn admin-btn--icon admin-btn--gallery"
+              onClick={() => openDetails(row)}
+              title="View details"
             >
-              <Eye size={14} />
+              <Eye size={15} />
             </button>
             <button
-              className="btn btn-sm btn-danger"
+              type="button"
+              className="admin-btn admin-btn--icon admin-btn--delete"
               onClick={() => handleDelete(row._id)}
+              title="Delete booking"
             >
-              <Trash size={14} />
+              <Trash size={15} />
             </button>
           </div>
         ),
@@ -121,151 +241,204 @@ function ManageBookings() {
         button: true,
       },
     ],
-    []
+    [handleDelete]
   );
 
-  const renderDetails = () => {
+  const renderBookingDetails = () => {
     if (!selectedBooking) return null;
+
     const guest = selectedBooking?.guestId || {};
     const payment = selectedBooking?.paymentId || {};
 
-    return (
-      <table className="table table-bordered table-striped">
-        <tbody>
-          <tr>
-            <th>Order ID</th>
-             <td>{selectedBooking.customOrderId || selectedBooking._id}</td>
-          </tr>
-          <tr>
-            <th>Tour Name</th>
-            <td>{selectedBooking.tour_name}</td>
-          </tr>
-          <tr>
-            <th>Adults</th>
-            <td>{selectedBooking.adults}</td>
-          </tr>
-          <tr>
-            <th>Kids</th>
-            <td>{selectedBooking.kids}</td>
-          </tr>
-          <tr>
-            <th>Cars</th>
-            <td>{selectedBooking.number_of_cars}</td>
-          </tr>
-          <tr>
-            <th>Order Status</th>
-            <td>{selectedBooking.order_status ? "Confirmed" : "Pending"}</td>
-          </tr>
-          <tr>
-            <th>Booking Date</th>
-           <td>
-              {selectedBooking.bookingDate
-                ? `${new Date(selectedBooking.bookingDate).toLocaleDateString(
-                    undefined,
-                    {
-                      weekday: "short", 
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    }
-                  )} - ${selectedBooking.bookingTime || ""}`
-                : ""}
-            </td></tr>
-          {/* ✅ Guest Info */}
-          <tr>
-            <th>Guest Name</th>
-            <td>
-              {guest.firstname} {guest.lastname}
-            </td>
-          </tr>
-          <tr>
-            <th>Guest Email</th>
-            <td>{guest.uemail}</td>
-          </tr>
-          <tr>
-            <th>Guest Mobile</th>
-            <td>{guest.mobile}</td>
-          </tr>
+    const details = [
+      { label: "Order ID", value: selectedBooking.customOrderId || selectedBooking._id },
+      { label: "Tour Name", value: selectedBooking.tour_name, full: true },
+      { label: "Adults", value: selectedBooking.adults },
+      { label: "Kids", value: selectedBooking.kids },
+      { label: "Cars", value: selectedBooking.number_of_cars },
+      {
+        label: "Order Status",
+        value: selectedBooking.order_status ? "Confirmed" : "Pending",
+      },
+      { label: "Booking Date", value: formatBookingDate(selectedBooking), full: true },
+      { label: "Guest Name", value: `${guest.firstname || ""} ${guest.lastname || ""}`.trim() },
+      { label: "Guest Email", value: guest.uemail },
+      { label: "Guest Mobile", value: guest.mobile },
+      { label: "Payment Status", value: payment.payment_status ? "Paid" : "Unpaid" },
+      { label: "Total Price", value: payment.total_price ? `$${payment.total_price}` : "—" },
+      { label: "Sub Total", value: payment.sub_total ? `$${payment.sub_total}` : "—" },
+      { label: "Discount", value: selectedBooking.discount ?? "—" },
+      { label: "Payment Method", value: payment.payment_method },
+      {
+        label: "Card Detail",
+        value: payment.card_detail ? `**** **** **** ${payment.card_detail}` : "—",
+      },
+      { label: "Transaction ID", value: payment.transactionId, full: true },
+      {
+        label: "Created At",
+        value: selectedBooking.createdAt ? selectedBooking.createdAt.slice(0, 10) : "—",
+      },
+    ];
 
-          {/* ✅ Payment Info */}
-          <tr>
-            <th>Payment Status</th>
-            <td>{payment.payment_status ? "Paid" : "Unpaid"}</td>
-          </tr>
-          <tr>
-            <th>Total Price</th>
-            <td>${payment.total_price}</td>
-          </tr>
-          <tr>
-            <th>Sub Total</th>
-            <td>${payment.sub_total}</td>
-          </tr>
-          <tr>
-            <th>Discount</th>
-            <td>{selectedBooking.discount}</td>
-          </tr>
-          <tr>
-            <th>Payment Method</th>
-            <td>{payment.payment_method}</td>
-          </tr>
-          <tr>
-            <th>Card Detail</th>
-            <td>**** **** **** {payment.card_detail}</td>
-          </tr>
-          <tr>
-            <th>Transaction ID</th>
-            <td>{payment.transactionId}</td>
-          </tr>
-        </tbody>
-      </table>
+    return (
+      <div className="dashboard-detail-grid">
+        {details.map((item) => (
+          <div
+            key={item.label}
+            className={`dashboard-detail-item${item.full ? " dashboard-detail-item--full" : ""}`}
+          >
+            <div className="dashboard-detail-item__label">{item.label}</div>
+            <div className="dashboard-detail-item__value">{item.value || "—"}</div>
+          </div>
+        ))}
+      </div>
     );
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="admin-page">
+        <div className="admin-page__loading">Loading bookings…</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-page">
+        <div className="admin-page__error">Error loading bookings: {error}</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container-fluid">
-      <div className="section-heading mb-3">
-        <h2>Manage Bookings</h2>
+    <div className="admin-page">
+      <div className="admin-page__header">
+        <div>
+          <h1 className="admin-page__title">Manage Bookings</h1>
+          <p className="admin-page__subtitle">
+            View tour reservations, payment status, and guest details.
+          </p>
+        </div>
       </div>
 
-      <TableContainer columns={columns} data={bookings} />
-
-      {/* Bootstrap Modal */}
-      <div
-        className="modal fade"
-        id="bookingDetailModal"
-        tabIndex="-1"
-        aria-labelledby="bookingDetailModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-lg modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="bookingDetailModalLabel">
-                Booking Details
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              />
-            </div>
-            <div className="modal-body">{renderDetails()}</div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
+      <div className="admin-page__stats">
+        <div className="admin-page__stat">
+          <div className="admin-page__stat-icon admin-page__stat-icon--amber">
+            <Ticket size={20} />
+          </div>
+          <div>
+            <div className="admin-page__stat-label">Total Bookings</div>
+            <div className="admin-page__stat-value">{bookings.length}</div>
+          </div>
+        </div>
+        <div className="admin-page__stat">
+          <div className="admin-page__stat-icon admin-page__stat-icon--green">
+            <CheckCircle2 size={20} />
+          </div>
+          <div>
+            <div className="admin-page__stat-label">Confirmed</div>
+            <div className="admin-page__stat-value">{confirmedCount}</div>
+          </div>
+        </div>
+        <div className="admin-page__stat">
+          <div className="admin-page__stat-icon admin-page__stat-icon--slate">
+            <Clock size={20} />
+          </div>
+          <div>
+            <div className="admin-page__stat-label">Pending</div>
+            <div className="admin-page__stat-value">{pendingCount}</div>
+          </div>
+        </div>
+        <div className="admin-page__stat">
+          <div className="admin-page__stat-icon admin-page__stat-icon--green">
+            <DollarSign size={20} />
+          </div>
+          <div>
+            <div className="admin-page__stat-label">Total Revenue</div>
+            <div className="admin-page__stat-value">
+              ${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </div>
           </div>
         </div>
       </div>
+
+      <div className="admin-page__card">
+        <div className="admin-page__card-header">
+          <h2 className="admin-page__card-title">All Bookings</h2>
+          <span className="admin-page__card-count">
+            {filteredBookings.length} of {bookings.length} shown
+          </span>
+        </div>
+
+        <div className="admin-page__toolbar">
+          <div className="admin-page__search">
+            <Search size={16} className="admin-page__search-icon" />
+            <input
+              type="text"
+              className="admin-page__search-input"
+              placeholder="Search by tour, guest, email, or order ID…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {bookings.length === 0 ? (
+          <div className="admin-page__empty">
+            <div className="admin-page__empty-icon">
+              <Ticket size={24} />
+            </div>
+            <h3 className="admin-page__empty-title">No bookings yet</h3>
+            <p className="admin-page__empty-text">
+              Tour bookings will appear here once customers make reservations.
+            </p>
+          </div>
+        ) : (
+          <TableContainer
+            columns={columns}
+            data={filteredBookings}
+            noDataComponent={
+              <div className="admin-page__empty" style={{ minHeight: 160 }}>
+                <p className="admin-page__empty-text" style={{ margin: 0 }}>
+                  No bookings match your search.
+                </p>
+              </div>
+            }
+          />
+        )}
+      </div>
+
+      {showModal && selectedBooking && (
+        <>
+          <div className="dashboard-modal-backdrop" onClick={closeModal} />
+          <div className="dashboard-modal" role="dialog" aria-modal="true">
+            <div className="dashboard-modal__content">
+              <div className="dashboard-modal__header">
+                <h3 className="dashboard-modal__title">Booking Details</h3>
+                <button
+                  type="button"
+                  className="dashboard-modal__close"
+                  onClick={closeModal}
+                  aria-label="Close"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="dashboard-modal__body">{renderBookingDetails()}</div>
+              <div className="dashboard-modal__footer">
+                <button
+                  type="button"
+                  className="dashboard-btn dashboard-btn--secondary"
+                  onClick={closeModal}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

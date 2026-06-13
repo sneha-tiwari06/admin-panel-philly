@@ -32,7 +32,28 @@ axiosInstance.interceptors.response.use(
   }
 );
 export const BASE_IMAGE_URL = "https://api.phillycitytours.com";
+export const PUBLIC_SITE_URL = "https://www.phillycitytours.com";
 // export const BASE_IMAGE_URL = 'http://localhost:5000';
+
+export function getTourPageUrl(slug) {
+  if (!slug) return "";
+  return `${PUBLIC_SITE_URL}/tours/${slug}`;
+}
+
+export function getBlogPageUrl(slug) {
+  if (!slug) return "";
+  return `${PUBLIC_SITE_URL}/blogs/${slug}`;
+}
+
+export function getEventPageUrl(slug) {
+  if (!slug) return "";
+  return `${PUBLIC_SITE_URL}/events/${slug}`;
+}
+
+export function getItineraryPageUrl(slug) {
+  if (!slug) return "";
+  return `${PUBLIC_SITE_URL}/itineraries/${slug}`;
+}
 
 /** Use when displaying images: supports full URLs (e.g. R2) or legacy paths. */
 export function getImageUrl(pathOrUrl) {
