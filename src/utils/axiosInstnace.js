@@ -55,6 +55,11 @@ export function getItineraryPageUrl(slug) {
   return `${PUBLIC_SITE_URL}/itineraries/${slug}`;
 }
 
+export function getAuthorPageUrl(slug) {
+  if (!slug) return "";
+  return `${PUBLIC_SITE_URL}/authors/${slug}`;
+}
+
 /** Use when displaying images: supports full URLs (e.g. R2) or legacy paths. */
 export function getImageUrl(pathOrUrl) {
   if (!pathOrUrl) return "";

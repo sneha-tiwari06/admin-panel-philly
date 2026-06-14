@@ -38,6 +38,8 @@ const AddBlog = () => {
   const [previewURL, setPreviewURL] = useState("");
   const fileInputRef = useRef(null);
   const [showOnHomepage, setShowOnHomepage] = useState(false);
+  const [authorSlug, setAuthorSlug] = useState("");
+  const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(isEdit);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState({
@@ -51,6 +53,13 @@ const AddBlog = () => {
     if (withAlert) alert(`${title}: ${message}`);
     setToast({ show: true, title, message, bg });
   };
+
+  useEffect(() => {
+    axiosInstance
+      .get("/authors")
+      .then((response) => setAuthors(response.data || []))
+      .catch(() => setAuthors([]));
+  }, []);
 
   useEffect(() => {
     if (!slug) return;
@@ -72,6 +81,7 @@ const AddBlog = () => {
         setBlogSchema(data.blogSchema || "");
         setImgName(data.imgName || "");
         setShowOnHomepage(data.showOnHomepage || false);
+        setAuthorSlug(data.authorSlug || "");
         if (data.attached_document) {
           setPreviewURL(getImageUrl(data.attached_document));
         }
@@ -119,6 +129,7 @@ const AddBlog = () => {
       formData.append("imgName", imgName);
       formData.append("blogSchema", blogSchema);
       formData.append("showOnHomepage", showOnHomepage);
+      formData.append("authorSlug", authorSlug);
 
       if (file) {
         formData.append("attached_document_filename", file.name);
@@ -237,6 +248,22 @@ const AddBlog = () => {
                   <div className="admin-form-group">
                     <label className="admin-form-label" htmlFor="blogLink">Blog Slug</label>
                     <input id="blogLink" className="admin-form-input" value={blogLink} onChange={(e) => setBlogLink(e.target.value)} placeholder="my-blog-post" />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="authorSlug">Author</label>
+                    <select
+                      id="authorSlug"
+                      className="admin-form-input"
+                      value={authorSlug}
+                      onChange={(e) => setAuthorSlug(e.target.value)}
+                    >
+                      <option value="">Select author</option>
+                      {authors.map((author) => (
+                        <option key={author._id} value={author.authorSlug}>
+                          {author.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="admin-form-group">
                     <label className="admin-form-label" htmlFor="imgName">Image Name</label>

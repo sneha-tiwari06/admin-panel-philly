@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axiosInstance, { getItineraryPageUrl } from "../../utils/axiosInstnace";
+import axiosInstance, { getImageUrl, getItineraryPageUrl } from "../../utils/axiosInstnace";
 import TextEditor from "../../common/ckEditor";
-import { ArrowLeft, Save, Plus, X, FileText, HelpCircle, List } from "lucide-react";
+import { ArrowLeft, Save, Plus, X, FileText, HelpCircle, List, Image, Upload } from "lucide-react";
 import "../../styles/admin-page.css";
 
 const initialFaqItem = () => ({ question: "", answer: "" });
@@ -16,6 +16,10 @@ const AddItineraryDetail = () => {
   const [tableContent, setTableContent] = useState("");
   const [highlights, setHighlights] = useState([""]);
   const [faqs, setFaqs] = useState([initialFaqItem()]);
+  const [file, setFile] = useState(null);
+  const [previewURL, setPreviewURL] = useState("");
+  const [removeDetailImage, setRemoveDetailImage] = useState(false);
+  const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [hasExistingDetail, setHasExistingDetail] = useState(false);
@@ -38,6 +42,9 @@ const AddItineraryDetail = () => {
           setTableContent(detail.tableContent || "");
           setHighlights(detail.highlights?.length ? detail.highlights : [""]);
           setFaqs(detail.faqs?.length ? detail.faqs : [initialFaqItem()]);
+          if (detail.detailImage) {
+            setPreviewURL(getImageUrl(detail.detailImage));
+          }
           setHasExistingDetail(true);
         }
       } catch (err) {
@@ -73,6 +80,21 @@ const AddItineraryDetail = () => {
     });
   };
 
+  const handleFileInput = (e) => {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+    setFile(selectedFile);
+    setPreviewURL(URL.createObjectURL(selectedFile));
+    setRemoveDetailImage(false);
+  };
+
+  const handleRemoveFile = () => {
+    setFile(null);
+    setPreviewURL("");
+    setRemoveDetailImage(true);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return;
@@ -82,11 +104,20 @@ const AddItineraryDetail = () => {
       const validHighlights = highlights.filter((item) => item.trim());
       const validFaqs = faqs.filter((item) => item.question.trim() && item.answer.trim());
 
-      await axiosInstance.post(`/itinerary-details/save/${slug}`, {
-        content,
-        tableContent,
-        highlights: JSON.stringify(validHighlights),
-        faqs: JSON.stringify(validFaqs),
+      const formData = new FormData();
+      formData.append("content", content);
+      formData.append("tableContent", tableContent);
+      formData.append("highlights", JSON.stringify(validHighlights));
+      formData.append("faqs", JSON.stringify(validFaqs));
+      formData.append("removeDetailImage", removeDetailImage);
+
+      if (file) {
+        formData.append("detailImage_filename", file.name);
+        formData.append("detailImage", file, file.name);
+      }
+
+      await axiosInstance.post(`/itinerary-details/save/${slug}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       navigate("/manage-itinerary-details");
@@ -147,6 +178,63 @@ const AddItineraryDetail = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="admin-form-stack">
+          <div className="admin-form-card">
+            <div className="admin-form-section">
+              <h2 className="admin-form-section__title">
+                <Image size={16} style={{ verticalAlign: "middle", marginRight: 6 }} />
+                Detail Image
+              </h2>
+              <p className="admin-form-section__desc">
+                Large image shown on the itinerary detail page (separate from the listing card image).
+              </p>
+              <input
+                id="detail-image-upload"
+                ref={fileInputRef}
+                type="file"
+                className="admin-upload__input"
+                accept=".jpg,.jpeg,.png,.webp"
+                onChange={handleFileInput}
+              />
+              {!previewURL ? (
+                <label htmlFor="detail-image-upload" className="admin-upload">
+                  <div className="admin-upload__icon">
+                    <Upload size={22} />
+                  </div>
+                  <p className="admin-upload__title">Drop detail image here or browse</p>
+                  <p className="admin-upload__text">Supports JPG, PNG, WEBP</p>
+                  <span className="admin-upload__browse">
+                    <Image size={14} /> Choose Image
+                  </span>
+                </label>
+              ) : (
+                <div className="admin-gallery-preview">
+                  <div className="admin-preview__header">
+                    <span>Preview</span>
+                    <div className="admin-action-group">
+                      <button
+                        type="button"
+                        className="admin-btn admin-btn--secondary"
+                        style={{ padding: "6px 12px", fontSize: "0.75rem" }}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Change
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-preview__remove"
+                        onClick={handleRemoveFile}
+                        aria-label="Remove"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <img src={previewURL} alt="Detail preview" />
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="admin-form-card">
             <div className="admin-form-section">
               <h2 className="admin-form-section__title">

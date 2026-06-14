@@ -95,6 +95,12 @@ const MENU_GROUPS = [
         roles: ["admin", "subadmin"],
       },
       {
+        path: "/manage-authors",
+        name: "Manage Authors",
+        icon: <PersonOutlineIcon fontSize="small" />,
+        roles: ["admin", "subadmin"],
+      },
+      {
         path: "/manage-events",
         name: "Manage Events",
         icon: <EventOutlinedIcon fontSize="small" />,
@@ -159,8 +165,9 @@ const RELATED_PATHS = {
   "/manage-block-times": ["/add-block-time", "/edit-block-time"],
   "/offers": ["/add-offers", "/edit-coupon"],
   "/manage-blogs": ["/add-blogs", "/edit-blog", "/manage-meta", "/add-meta", "/edit-meta", "/manage-blog-faq", "/add-blog-faq", "/edit-blog-faq"],
+  "/manage-authors": ["/add-author", "/edit-author"],
   "/manage-events": ["/add-events", "/edit-event"],
-  "/manage-itineraries": ["/add-itinerary", "/edit-itinerary", "/add-itinerary-detail"],
+  "/manage-itineraries": ["/add-itinerary", "/edit-itinerary", "/add-itinerary-detail", "/manage-itinerary-meta", "/add-itinerary-meta", "/edit-itinerary-meta"],
   "/manage-itinerary-details": ["/add-itinerary-detail"],
   "/manage-testimonials": ["/add-testimonials", "/edit-testimonials"],
   "/manage-faqs": ["/add-faqs", "/edit-faqs"],

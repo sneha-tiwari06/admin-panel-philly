@@ -10,6 +10,7 @@ import {
   Trash,
   ExternalLink,
   FileText,
+  Code,
   Home,
 } from "lucide-react";
 import "../../styles/admin-page.css";
@@ -122,6 +123,20 @@ function ManageItineraries() {
       //       "—"
       //     ),
       // },
+      {
+        name: "Meta",
+        width: "90px",
+        cell: (row) => (
+          <Link
+            to={`/manage-itinerary-meta/${row.slug}`}
+            className="admin-btn admin-btn--secondary"
+            style={{ padding: "6px 10px", fontSize: "0.75rem" }}
+            title="Manage meta & schema"
+          >
+            <Code size={14} />
+          </Link>
+        ),
+      },
       {
         name: "Detail",
         width: "100px",

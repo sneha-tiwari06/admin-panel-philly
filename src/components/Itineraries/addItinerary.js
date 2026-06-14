@@ -444,7 +444,7 @@ const AddItinerary = () => {
               <div className="admin-form-section">
                 <h2 className="admin-form-section__title">
                   <Image size={16} style={{ verticalAlign: "middle", marginRight: 6 }} />
-                  Itinerary Image
+                  Itinerary Thumbnail Image
                 </h2>
                 <input
                   id="itinerary-image-upload"

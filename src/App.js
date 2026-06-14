@@ -43,6 +43,10 @@ import ManageItineraries from "./components/Itineraries/manageItineraries";
 import AddItinerary from "./components/Itineraries/addItinerary";
 import ManageItineraryDetails from "./components/Itineraries/manageItineraryDetails";
 import AddItineraryDetail from "./components/Itineraries/addItineraryDetail";
+import ManageItineraryMeta from "./components/Itineraries/ItineraryMetaList";
+import AddItineraryMeta from "./components/Itineraries/AddItineraryMeta";
+import ManageAuthors from "./components/Authors/AuthorList";
+import AddAuthor from "./components/Authors/addAuthor";
 
 function App() {
   return (
@@ -85,6 +89,9 @@ function App() {
             <Route path="/manage-blogs" element={<ManageBlogs />} />
             <Route path="/add-blogs" element={<AddBlog />} />
             <Route path="/edit-blog/:slug" element={<AddBlog />} />
+            <Route path="/manage-authors" element={<ManageAuthors />} />
+            <Route path="/add-author" element={<AddAuthor />} />
+            <Route path="/edit-author/:slug" element={<AddAuthor />} />
             <Route path="/manage-events" element={<ManageEvents />} />
             <Route path="/add-events" element={<AddEvent />} />
             <Route path="/edit-event/:slug" element={<AddEvent />} />
@@ -111,6 +118,9 @@ function App() {
             <Route path="/edit-itinerary/:slug" element={<AddItinerary />} />
             <Route path="/manage-itinerary-details" element={<ManageItineraryDetails />} />
             <Route path="/add-itinerary-detail/:slug" element={<AddItineraryDetail />} />
+            <Route path="/manage-itinerary-meta/:slug" element={<ManageItineraryMeta />} />
+            <Route path="/add-itinerary-meta/:slug" element={<AddItineraryMeta />} />
+            <Route path="/edit-itinerary-meta/:slug/:id" element={<AddItineraryMeta />} />
 
             <Route
               path="/manage-contact-queries"
